@@ -1,61 +1,57 @@
-﻿namespace science.lin {
-export module  decompose  {
+﻿namespace science.lin.decompose {
 
-        function decompose(A) {
-            var n = A.length, // column dimension
-                V = [],
-                d = [],
-                e = [];
+    export function decompose(A) {
+        var n = A.length, // column dimension
+            V = [],
+            d = [],
+            e = [];
 
-            for (var i = 0; i < n; i++) {
-                V[i] = [];
-                d[i] = [];
-                e[i] = [];
-            }
-
-            var symmetric = true;
-            for (var j = 0; j < n; j++) {
-                for (var i = 0; i < n; i++) {
-                    if (A[i][j] !== A[j][i]) {
-                        symmetric = false;
-                        break;
-                    }
-                }
-            }
-
-            if (symmetric) {
-                for (var i = 0; i < n; i++) V[i] = A[i].slice();
-
-                // Tridiagonalize.
-                science_lin_decomposeTred2(d, e, V);
-
-                // Diagonalize.
-                science_lin_decomposeTql2(d, e, V);
-            } else {
-                var H = [];
-                for (var i = 0; i < n; i++) H[i] = A[i].slice();
-
-                // Reduce to Hessenberg form.
-                science_lin_decomposeOrthes(H, V);
-
-                // Reduce Hessenberg to real Schur form.
-                science_lin_decomposeHqr2(d, e, H, V);
-            }
-
-            var D = [];
-            for (var i = 0; i < n; i++) {
-                var row = D[i] = [];
-                for (var j = 0; j < n; j++) row[j] = i === j ? d[i] : 0;
-                D[i][e[i] > 0 ? i + 1 : i - 1] = e[i];
-            }
-            return { D: D, V: V };
+        for (var i = 0; i < n; i++) {
+            V[i] = [];
+            d[i] = [];
+            e[i] = [];
         }
 
-        return decompose;
-    };
+        var symmetric = true;
+        for (var j = 0; j < n; j++) {
+            for (var i = 0; i < n; i++) {
+                if (A[i][j] !== A[j][i]) {
+                    symmetric = false;
+                    break;
+                }
+            }
+        }
+
+        if (symmetric) {
+            for (var i = 0; i < n; i++) V[i] = A[i].slice();
+
+            // Tridiagonalize.
+            science.lin.decompose.Tred2(d, e, V);
+
+            // Diagonalize.
+            science.lin.decompose.Tql2(d, e, V);
+        } else {
+            var H = [];
+            for (var i = 0; i < n; i++) H[i] = A[i].slice();
+
+            // Reduce to Hessenberg form.
+            science.lin.decompose.Orthes(H, V);
+
+            // Reduce Hessenberg to real Schur form.
+            science.lin.decompose.Hqr2(d, e, H, V);
+        }
+
+        var D = [];
+        for (var i = 0; i < n; i++) {
+            var row = D[i] = [];
+            for (var j = 0; j < n; j++) row[j] = i === j ? d[i] : 0;
+            D[i][e[i] > 0 ? i + 1 : i - 1] = e[i];
+        }
+        return { D: D, V: V };
+    }
 
     // Symmetric Householder reduction to tridiagonal form.
-    function science_lin_decomposeTred2(d, e, V) {
+    export function Tred2(d, e, V) {
         // This is derived from the Algol procedures tred2 by
         // Bowdler, Martin, Reinsch, and Wilkinson, Handbook for
         // Auto. Comp., Vol.ii-Linear Algebra, and the corresponding
@@ -147,13 +143,14 @@ export module  decompose  {
     }
 
     // Symmetric tridiagonal QL algorithm.
-    function science_lin_decomposeTql2(d, e, V) {
+    export function Tql2(d, e, V) {
         // This is derived from the Algol procedures tql2, by
         // Bowdler, Martin, Reinsch, and Wilkinson, Handbook for
         // Auto. Comp., Vol.ii-Linear Algebra, and the corresponding
         // Fortran subroutine in EISPACK.
 
         var n = V.length;
+        var p: number;
 
         for (var i = 1; i < n; i++) e[i - 1] = e[i];
         e[n - 1] = 0;
@@ -179,7 +176,7 @@ export module  decompose  {
 
                     // Compute implicit shift
                     var g = d[l];
-                    var p = (d[l + 1] - g) / (2 * e[l]);
+                    p = (d[l + 1] - g) / (2 * e[l]);
                     var r = science.hypot(p, 1);
                     if (p < 0) r = -r;
                     d[l] = e[l] / (p + r);
@@ -230,8 +227,8 @@ export module  decompose  {
 
         // Sort eigenvalues and corresponding vectors.
         for (var i = 0; i < n - 1; i++) {
-            var k = i;
-            var p = d[i];
+            var k = i; p = d[i];
+
             for (var j = i + 1; j < n; j++) {
                 if (d[j] < p) {
                     k = j;
@@ -251,7 +248,7 @@ export module  decompose  {
     }
 
     // Nonsymmetric reduction to Hessenberg form.
-    function science_lin_decomposeOrthes(H, V) {
+    export function Orthes(H, V) {
         // This is derived from the Algol procedures orthes and ortran,
         // by Martin and Wilkinson, Handbook for Auto. Comp.,
         // Vol.ii-Linear Algebra, and the corresponding
@@ -320,7 +317,7 @@ export module  decompose  {
     }
 
     // Nonsymmetric reduction from Hessenberg to real Schur form.
-    function science_lin_decomposeHqr2(d, e, H, V) {
+    export function Hqr2(d, e, H, V) {
         // This is derived from the Algol procedure hqr2,
         // by Martin and Wilkinson, Handbook for Auto. Comp.,
         // Vol.ii-Linear Algebra, and the corresponding
@@ -616,7 +613,7 @@ export module  decompose  {
                     H[n - 1][n - 1] = q / H[n][n - 1];
                     H[n - 1][n] = -(H[n][n] - p) / H[n][n - 1];
                 } else {
-                    var zz = science_lin_decomposeCdiv(0, -H[n - 1][n], H[n - 1][n - 1] - p, q);
+                    var zz = science.lin.decompose.Cdiv(0, -H[n - 1][n], H[n - 1][n - 1] - p, q);
                     H[n - 1][n - 1] = zz[0];
                     H[n - 1][n] = zz[1];
                 }
@@ -640,7 +637,7 @@ export module  decompose  {
                     } else {
                         l = i;
                         if (e[i] == 0) {
-                            var zz = science_lin_decomposeCdiv(-ra, -sa, w, q);
+                            var zz = science.lin.decompose.Cdiv(-ra, -sa, w, q);
                             H[i][n - 1] = zz[0];
                             H[i][n] = zz[1];
                         } else {
@@ -653,14 +650,14 @@ export module  decompose  {
                                 vr = eps * norm * (Math.abs(w) + Math.abs(q) +
                                     Math.abs(x) + Math.abs(y) + Math.abs(z));
                             }
-                            var zz = science_lin_decomposeCdiv(x * r - z * ra + q * sa, x * s - z * sa - q * ra, vr, vi);
+                            var zz = science.lin.decompose.Cdiv(x * r - z * ra + q * sa, x * s - z * sa - q * ra, vr, vi);
                             H[i][n - 1] = zz[0];
                             H[i][n] = zz[1];
                             if (Math.abs(x) > (Math.abs(z) + Math.abs(q))) {
                                 H[i + 1][n - 1] = (-ra - w * H[i][n - 1] + q * H[i][n]) / x;
                                 H[i + 1][n] = (-sa - w * H[i][n] - q * H[i][n - 1]) / x;
                             } else {
-                                var zz = science_lin_decomposeCdiv(-r - y * H[i][n - 1], -s - y * H[i][n], z, q);
+                                var zz = science.lin.decompose.Cdiv(-r - y * H[i][n - 1], -s - y * H[i][n], z, q);
                                 H[i + 1][n - 1] = zz[0];
                                 H[i + 1][n] = zz[1];
                             }
@@ -697,7 +694,7 @@ export module  decompose  {
     }
 
     // Complex scalar division.
-    function science_lin_decomposeCdiv(xr, xi, yr, yi) {
+    export function Cdiv(xr, xi, yr, yi) {
         if (Math.abs(yr) > Math.abs(yi)) {
             var r = yi / yr,
                 d = yr + r * yi;
@@ -708,181 +705,4 @@ export module  decompose  {
             return [(r * xr + xi) / d, (r * xi - xr) / d];
         }
     }
-    science.lin.cross = function (a, b) {
-        // TODO how to handle non-3D vectors?
-        // TODO handle 7D vectors?
-        return [
-            a[1] * b[2] - a[2] * b[1],
-            a[2] * b[0] - a[0] * b[2],
-            a[0] * b[1] - a[1] * b[0]
-        ];
-    };
-    science.lin.dot = function (a, b) {
-        var s = 0,
-            i = -1,
-            n = Math.min(a.length, b.length);
-        while (++i < n) s += a[i] * b[i];
-        return s;
-    };
-    science.lin.length = function (p) {
-        return Math.sqrt(science.lin.dot(p, p));
-    };
-    science.lin.normalize = function (p) {
-        var length = science.lin.length(p);
-        return p.map(function (d) { return d / length; });
-    };
-    // 4x4 matrix determinant.
-    science.lin.determinant = function (matrix) {
-        var m = matrix[0].concat(matrix[1]).concat(matrix[2]).concat(matrix[3]);
-        return (
-            m[12] * m[9] * m[6] * m[3] - m[8] * m[13] * m[6] * m[3] -
-            m[12] * m[5] * m[10] * m[3] + m[4] * m[13] * m[10] * m[3] +
-            m[8] * m[5] * m[14] * m[3] - m[4] * m[9] * m[14] * m[3] -
-            m[12] * m[9] * m[2] * m[7] + m[8] * m[13] * m[2] * m[7] +
-            m[12] * m[1] * m[10] * m[7] - m[0] * m[13] * m[10] * m[7] -
-            m[8] * m[1] * m[14] * m[7] + m[0] * m[9] * m[14] * m[7] +
-            m[12] * m[5] * m[2] * m[11] - m[4] * m[13] * m[2] * m[11] -
-            m[12] * m[1] * m[6] * m[11] + m[0] * m[13] * m[6] * m[11] +
-            m[4] * m[1] * m[14] * m[11] - m[0] * m[5] * m[14] * m[11] -
-            m[8] * m[5] * m[2] * m[15] + m[4] * m[9] * m[2] * m[15] +
-            m[8] * m[1] * m[6] * m[15] - m[0] * m[9] * m[6] * m[15] -
-            m[4] * m[1] * m[10] * m[15] + m[0] * m[5] * m[10] * m[15]);
-    };
-    // Performs in-place Gauss-Jordan elimination.
-    //
-    // Based on Jarno Elonen's Python version (public domain):
-    // http://elonen.iki.fi/code/misc-notes/python-gaussj/index.html
-    science.lin.gaussjordan = function (m, eps) {
-        if (!eps) eps = 1e-10;
-
-        var h = m.length,
-            w = m[0].length,
-            y = -1,
-            y2,
-            x;
-
-        while (++y < h) {
-            var maxrow = y;
-
-            // Find max pivot.
-            y2 = y; while (++y2 < h) {
-                if (Math.abs(m[y2][y]) > Math.abs(m[maxrow][y]))
-                    maxrow = y2;
-            }
-
-            // Swap.
-            var tmp = m[y];
-            m[y] = m[maxrow];
-            m[maxrow] = tmp;
-
-            // Singular?
-            if (Math.abs(m[y][y]) <= eps) return false;
-
-            // Eliminate column y.
-            y2 = y; while (++y2 < h) {
-                var c = m[y2][y] / m[y][y];
-                x = y - 1; while (++x < w) {
-                    m[y2][x] -= m[y][x] * c;
-                }
-            }
-        }
-
-        // Backsubstitute.
-        y = h; while (--y >= 0) {
-            var c = m[y][y];
-            y2 = -1; while (++y2 < y) {
-                x = w; while (--x >= y) {
-                    m[y2][x] -= m[y][x] * m[y2][y] / c;
-                }
-            }
-            m[y][y] /= c;
-            // Normalize row y.
-            x = h - 1; while (++x < w) {
-                m[y][x] /= c;
-            }
-        }
-        return true;
-    };
-    // Find matrix inverse using Gauss-Jordan.
-    science.lin.inverse = function (m) {
-        var n = m.length,
-            i = -1;
-
-        // Check if the matrix is square.
-        if (n !== m[0].length) return;
-
-        // Augment with identity matrix I to get AI.
-        m = m.map(function (row, i) {
-            var identity = new Array(n),
-                j = -1;
-            while (++j < n) identity[j] = i === j ? 1 : 0;
-            return row.concat(identity);
-        });
-
-        // Compute IA^-1.
-        science.lin.gaussjordan(m);
-
-        // Remove identity matrix I to get A^-1.
-        while (++i < n) {
-            m[i] = m[i].slice(n);
-        }
-
-        return m;
-    };
-    science.lin.multiply = function (a, b) {
-        var m = a.length,
-            n = b[0].length,
-            p = b.length,
-            i = -1,
-            j,
-            k;
-        if (p !== a[0].length) throw { "error": "columns(a) != rows(b); " + a[0].length + " != " + p };
-        var ab = new Array(m);
-        while (++i < m) {
-            ab[i] = new Array(n);
-            j = -1; while (++j < n) {
-                var s = 0;
-                k = -1; while (++k < p) s += a[i][k] * b[k][j];
-                ab[i][j] = s;
-            }
-        }
-        return ab;
-    };
-    science.lin.transpose = function (a) {
-        var m = a.length,
-            n = a[0].length,
-            i = -1,
-            j,
-            b = new Array(n);
-        while (++i < n) {
-            b[i] = new Array(m);
-            j = -1; while (++j < m) b[i][j] = a[j][i];
-        }
-        return b;
-    };
-    /**
-     * Solves tridiagonal systems of linear equations.
-     *
-     * Source: http://en.wikipedia.org/wiki/Tridiagonal_matrix_algorithm
-     *
-     * @param {number[]} a
-     * @param {number[]} b
-     * @param {number[]} c
-     * @param {number[]} d
-     * @param {number[]} x
-     * @param {number} n
-     */
-    science.lin.tridag = function (a, b, c, d, x, n) {
-        var i,
-            m;
-        for (i = 1; i < n; i++) {
-            m = a[i] / b[i - 1];
-            b[i] -= m * c[i - 1];
-            d[i] -= m * d[i - 1];
-        }
-        x[n - 1] = d[n - 1] / b[n - 1];
-        for (i = n - 2; i >= 0; i--) {
-            x[i] = (d[i] - c[i] * x[i + 1]) / b[i];
-        }
-    };
-}
+};
