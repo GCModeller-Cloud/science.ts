@@ -12,32 +12,38 @@
 
     function quadraticInternal(): IQuadratic {
         var complex: boolean = false;
-        var quadratic: any = function (a: number, b: number, c: number): number[] {
+        var quadratic: any = function (a: number, b: number, c: number): number[] | complexNumber[] {
             var d = b * b - 4 * a * c;
 
             if (d > 0) {
                 d = Math.sqrt(d) / (2 * a);
                 return complex
-                    ? [{ r: -b - d, i: 0 }, { r: -b + d, i: 0 }]
+                    ? [<complexNumber>{ r: -b - d, i: 0 }, <complexNumber>{ r: -b + d, i: 0 }]
                     : [-b - d, -b + d];
+
             } else if (d === 0) {
                 d = -b / (2 * a);
-                return complex ? [{ r: d, i: 0 }] : [d];
+                return complex ? [<complexNumber>{ r: d, i: 0 }] : [d];
+
             } else {
                 if (complex) {
                     d = Math.sqrt(-d) / (2 * a);
                     return [
-                        { r: -b, i: -d },
-                        { r: -b, i: d }
+                        <complexNumber>{ r: -b, i: -d },
+                        <complexNumber>{ r: -b, i: d }
                     ];
                 }
                 return [];
             }
         }
 
-        quadratic.complex = function (x) {
-            if (!arguments.length) return complex;
-            complex = x;
+        quadratic.complex = function (x?: boolean) {
+            if (!arguments.length) {
+                return complex;
+            } else {
+                complex = x;
+            }
+         
             return quadratic;
         };
 
@@ -48,11 +54,16 @@
         /**
          * Do calculation
         */
-        (a: number, b: number, c: number): number[];
+        (a: number, b: number, c: number): number[] | complexNumber[];
         /**
          * Config function output
         */
-        complex(config?: boolean): boolean;
+        complex(config?: boolean): boolean | IQuadratic;
+    }
+
+    export interface complexNumber {
+        r: number;
+        i: number;
     }
 
     export const quadratic: IQuadratic = quadraticInternal();
