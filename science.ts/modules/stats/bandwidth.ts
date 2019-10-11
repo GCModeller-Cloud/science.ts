@@ -6,6 +6,8 @@ namespace science.stats.bandwidth {
     // Silverman, B. W. (1986) Density Estimation. London: Chapman and Hall.
     export function nrd0(x) {
         var hi = Math.sqrt(science.stats.variance(x));
+        var lo: number;
+
         if (!(lo = Math.min(hi, science.stats.iqr(x) / 1.34)))
             (lo = hi) || (lo = Math.abs(x[1])) || (lo = 1);
         return .9 * lo * Math.pow(x.length, -.2);

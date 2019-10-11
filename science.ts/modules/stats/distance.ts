@@ -1,4 +1,5 @@
 ﻿namespace science.stats.distance {
+
     export function euclidean(a, b) {
         var n = a.length,
             i = -1,

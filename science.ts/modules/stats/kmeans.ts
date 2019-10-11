@@ -3,6 +3,7 @@
 namespace science.stats {
 
     export class kmeansFunction {
+
         private m_distance = science.stats.distance.euclidean;
         private maxIterations = 1000;
         private m_k = 1;
