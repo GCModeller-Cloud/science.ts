@@ -5,12 +5,17 @@
     };
 
     // Compute exp(x) - 1 accurately for small x.
-    export function expm1(x) {
+    export function expm1(x: number): number {
         return (x < 1e-5 && x > -1e-5) ? x + .5 * x * x : Math.exp(x) - 1;
     };
+
+    /**
+     * Ensure the input object is a function
+    */
     export function functor(v) {
         return typeof v === "function" ? v : function () { return v; };
     };
+
     // Based on:
     // http://www.johndcook.com/blog/2010/06/02/whats-so-hard-about-finding-a-hypotenuse/
     export function hypot(x, y) {
@@ -22,7 +27,7 @@
         else { max = y; min = x; }
         var r = min / max;
         return max * Math.sqrt(1 + r * r);
-    };  
+    };
 
     /**
      * Constructs a multi-dimensional array filled with zeroes.

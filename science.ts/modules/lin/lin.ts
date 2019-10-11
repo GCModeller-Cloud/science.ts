@@ -1,6 +1,5 @@
 ﻿namespace science.lin {
 
-
     export function cross(a, b) {
         // TODO how to handle non-3D vectors?
         // TODO handle 7D vectors?
@@ -10,6 +9,7 @@
             a[0] * b[1] - a[1] * b[0]
         ];
     };
+
     export function dot(a, b) {
         var s = 0,
             i = -1,
@@ -17,13 +17,16 @@
         while (++i < n) s += a[i] * b[i];
         return s;
     };
+
     export function length(p) {
         return Math.sqrt(science.lin.dot(p, p));
     };
+
     export function normalize(p) {
         var length = science.lin.length(p);
         return p.map(function (d) { return d / length; });
     };
+
     // 4x4 matrix determinant.
     export function determinant(matrix) {
         var m = matrix[0].concat(matrix[1]).concat(matrix[2]).concat(matrix[3]);
@@ -41,6 +44,7 @@
             m[8] * m[1] * m[6] * m[15] - m[0] * m[9] * m[6] * m[15] -
             m[4] * m[1] * m[10] * m[15] + m[0] * m[5] * m[10] * m[15]);
     };
+
     // Performs in-place Gauss-Jordan elimination.
     //
     // Based on Jarno Elonen's Python version (public domain):

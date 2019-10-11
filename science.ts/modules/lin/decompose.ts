@@ -58,6 +58,7 @@
         // Fortran subroutine in EISPACK.
 
         var n = V.length;
+        var h: number;
 
         for (var j = 0; j < n; j++) d[j] = V[n - 1][j];
 
@@ -123,7 +124,8 @@
         for (var i = 0; i < n - 1; i++) {
             V[n - 1][i] = V[i][i];
             V[i][i] = 1.0;
-            var h = d[i + 1];
+            h = d[i + 1];
+
             if (h != 0) {
                 for (var k = 0; k <= i; k++) d[k] = V[k][i + 1] / h;
                 for (var j = 0; j <= i; j++) {
@@ -622,8 +624,8 @@
                 for (var i = n - 2; i >= 0; i--) {
                     var ra = 0,
                         sa = 0,
-                        vr,
-                        vi;
+                        vr: number,
+                        vi: number;
                     for (var j = l; j <= n; j++) {
                         ra = ra + H[i][j] * H[j][n - 1];
                         sa = sa + H[i][j] * H[j][n];
@@ -646,7 +648,10 @@
                             y = H[i + 1][i];
                             vr = (d[i] - p) * (d[i] - p) + e[i] * e[i] - q * q;
                             vi = (d[i] - p) * 2.0 * q;
-                            if (vr == 0 & vi == 0) {
+
+                            // the original code:
+                            // if (vr == 0 & vi == 0) {
+                            if (vr == 0 && vi == 0) {
                                 vr = eps * norm * (Math.abs(w) + Math.abs(q) +
                                     Math.abs(x) + Math.abs(y) + Math.abs(z));
                             }
