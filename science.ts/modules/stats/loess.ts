@@ -21,9 +21,9 @@ namespace science.stats {
                 i = -1; while (++i < n) weights[i] = 1;
             }
 
-            loess.loessFiniteReal(xval);
-            loess.loessFiniteReal(yval);
-            loess.loessFiniteReal(weights);
+            loess.FiniteReal(xval);
+            loess.FiniteReal(yval);
+            loess.FiniteReal(weights);
             loess.StrictlyIncreasing(xval);
 
             if (n == 1) return [yval[0]];
