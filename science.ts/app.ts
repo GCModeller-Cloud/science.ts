@@ -9,6 +9,7 @@
      * Euler's constant.
     */
     export const EULER = .5772156649015329;
+    export const gaussianConstant = 1 / Math.sqrt(2 * Math.PI);
 
     function quadraticInternal(): IQuadratic {
         var complex: boolean = false;
@@ -43,7 +44,7 @@
             } else {
                 complex = x;
             }
-         
+
             return quadratic;
         };
 

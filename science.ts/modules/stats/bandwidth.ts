@@ -9,7 +9,7 @@ namespace science.stats.bandwidth {
         if (!(lo = Math.min(hi, science.stats.iqr(x) / 1.34)))
             (lo = hi) || (lo = Math.abs(x[1])) || (lo = 1);
         return .9 * lo * Math.pow(x.length, -.2);
-    },
+    }
 
     // Scott, D. W. (1992) Multivariate Density Estimation: Theory, Practice, and
     // Visualization. Wiley.

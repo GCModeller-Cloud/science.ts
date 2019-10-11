@@ -1,57 +1,55 @@
-﻿science.stats.distribution = {
+﻿namespace science.stats.distribution {
+
+    // From http://www.colingodsey.com/javascript-gaussian-random-number-generator/
+    // Uses the Box-Muller Transform.
+    export class gaussianFunction {
+
+        private m_random = Math.random;
+        private m_mean = 0;
+        private m_sigma = 1;
+        private m_variance = 1;
+
+        gaussian() {
+            var x1,
+                x2,
+                rad,
+                y1;
+
+            do {
+                x1 = 2 * this.m_random() - 1;
+                x2 = 2 * this.m_random() - 1;
+                rad = x1 * x1 + x2 * x2;
+            } while (rad >= 1 || rad === 0);
+
+            return this.m_mean + this.m_sigma * x1 * Math.sqrt(-2 * Math.log(rad) / rad);
+        }
+
+        pdf(x) {
+            x = (x - this.m_mean) / this.m_sigma;
+            return gaussianConstant * Math.exp(-.5 * x * x) / this.m_sigma;
+        };
+
+        cdf(x) {
+            x = (x - this.m_mean) / this.m_sigma;
+            return .5 * (1 + science.stats.erf(x / Math.SQRT2));
+        };
+
+        mean(x) {
+            if (!arguments.length) return this.m_mean;
+            this.m_mean = +x;
+            return this;
+        };
+
+        variance(x) {
+            if (!arguments.length) return this.m_variance;
+            this.m_sigma = Math.sqrt(this.m_variance = +x);
+            return this;
+        };
+
+        random(x) {
+            if (!arguments.length) return this.m_random;
+            this.m_random = x;
+            return this;
+        };
+    };
 };
-// From http://www.colingodsey.com/javascript-gaussian-random-number-generator/
-// Uses the Box-Muller Transform.
-science.stats.distribution.gaussian = function () {
-    var random = Math.random,
-        mean = 0,
-        sigma = 1,
-        variance = 1;
-
-    function gaussian() {
-        var x1,
-            x2,
-            rad,
-            y1;
-
-        do {
-            x1 = 2 * random() - 1;
-            x2 = 2 * random() - 1;
-            rad = x1 * x1 + x2 * x2;
-        } while (rad >= 1 || rad === 0);
-
-        return mean + sigma * x1 * Math.sqrt(-2 * Math.log(rad) / rad);
-    }
-
-    gaussian.pdf = function (x) {
-        x = (x - mean) / sigma;
-        return science_stats_distribution_gaussianConstant * Math.exp(-.5 * x * x) / sigma;
-    };
-
-    gaussian.cdf = function (x) {
-        x = (x - mean) / sigma;
-        return .5 * (1 + science.stats.erf(x / Math.SQRT2));
-    };
-
-    gaussian.mean = function (x) {
-        if (!arguments.length) return mean;
-        mean = +x;
-        return gaussian;
-    };
-
-    gaussian.variance = function (x) {
-        if (!arguments.length) return variance;
-        sigma = Math.sqrt(variance = +x);
-        return gaussian;
-    };
-
-    gaussian.random = function (x) {
-        if (!arguments.length) return random;
-        random = x;
-        return gaussian;
-    };
-
-    return gaussian;
-};
-
-science_stats_distribution_gaussianConstant = 1 / Math.sqrt(2 * Math.PI);
