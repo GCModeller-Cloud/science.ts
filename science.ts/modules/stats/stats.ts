@@ -33,7 +33,7 @@
     };
 
     // Welford's algorithm.
-   export function mean  (x) {
+    export function mean(x) {
         var n = x.length;
         if (n === 0) return NaN;
         var m = 0,
@@ -41,10 +41,12 @@
         while (++i < n) m += (x[i] - m) / (i + 1);
         return m;
     };
-   export function median  (x) {
+
+    export function median(x) {
         return science.stats.quantiles(x, [.5])[0];
     };
-   export function mode  (x) {
+
+    export function mode(x) {
         var counts = {},
             mode = [],
             max = 0,
@@ -62,8 +64,9 @@
         }
         if (mode.length === 1) return mode[0];
     };
+
     // Uses R's quantile algorithm type=7.
-  export function quantiles  (d, quantiles) {
+    export function quantiles(d, quantiles) {
         d = d.slice().sort(science.ascending);
         var n_1 = d.length - 1;
         return quantiles.map(function (q) {
@@ -78,9 +81,10 @@
             return h === 0 ? a : a + h * (d[lo] - a);
         });
     };
+
     // Unbiased estimate of a sample's variance.
     // Also known as the sample variance, where the denominator is n - 1.
-  export function variance  (x) {
+    export function variance(x) {
         var n = x.length;
         if (n < 1) return NaN;
         if (n === 1) return 0;
