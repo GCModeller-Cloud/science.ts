@@ -1,9 +1,7 @@
-﻿namespace science.stats  {
-
-
-  
+﻿namespace science.stats {
+       
     // Based on implementation in http://picomath.org/.
-    science.stats.erf = function (x) {
+    export function erf(x) {
         var a1 = 0.254829592,
             a2 = -0.284496736,
             a3 = 1.421413741,
@@ -24,45 +22,11 @@
             1 - (((((a5 * t + a4) * t) + a3) * t + a2) * t + a1)
             * t * Math.exp(-x * x));
     };
-    science.stats.phi = function (x) {
+
+    export function phi  (x) {
         return .5 * (1 + science.stats.erf(x / Math.SQRT2));
     };
-    // See <http://en.wikipedia.org/wiki/Kernel_(statistics)>.
-    science.stats.kernel = {
-        uniform: function (u) {
-            if (u <= 1 && u >= -1) return .5;
-            return 0;
-        },
-        triangular: function (u) {
-            if (u <= 1 && u >= -1) return 1 - Math.abs(u);
-            return 0;
-        },
-        epanechnikov: function (u) {
-            if (u <= 1 && u >= -1) return .75 * (1 - u * u);
-            return 0;
-        },
-        quartic: function (u) {
-            if (u <= 1 && u >= -1) {
-                var tmp = 1 - u * u;
-                return (15 / 16) * tmp * tmp;
-            }
-            return 0;
-        },
-        triweight: function (u) {
-            if (u <= 1 && u >= -1) {
-                var tmp = 1 - u * u;
-                return (35 / 32) * tmp * tmp * tmp;
-            }
-            return 0;
-        },
-        gaussian: function (u) {
-            return 1 / Math.sqrt(2 * Math.PI) * Math.exp(-.5 * u * u);
-        },
-        cosine: function (u) {
-            if (u <= 1 && u >= -1) return Math.PI / 4 * Math.cos(Math.PI / 2 * u);
-            return 0;
-        }
-    };
+
     // http://exploringdata.net/den_trac.htm
     science.stats.kde = function () {
         var kernel = science.stats.kernel.gaussian,
