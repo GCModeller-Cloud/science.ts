@@ -57,6 +57,9 @@
     <TypeScriptCompile Include="modules\stats\kernel.ts">
       <SubType>Code</SubType>
     </TypeScriptCompile>
+    <TypeScriptCompile Include="modules\stats\kde.ts">
+      <SubType>Code</SubType>
+    </TypeScriptCompile>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="modules\" />
