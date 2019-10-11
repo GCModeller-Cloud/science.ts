@@ -200,6 +200,4 @@ namespace science.stats {
             return j;
         }
     }
-
-
 };

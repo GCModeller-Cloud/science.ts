@@ -1,52 +1,43 @@
 ﻿// http://exploringdata.net/den_trac.htm
-namespace science.stats.kde {
+namespace science.stats {
 
-    export interface Ikde {
+    export class kdeFunction {
 
-        (points: number[], i: number): number[][];
+        private m_kernel = science.stats.kernel.gaussian;
+        private m_sample = [];
+        private m_bandwidth = science.stats.bandwidth.nrd;
 
-        kernel(x): Ikde | any;
-        sample(x): Ikde | any;
-        bandwidth(x): Ikde | any;
-    }
-
-    function kdeImpl(): Ikde {
-        var kernel = science.stats.kernel.gaussian,
-            sample = [],
-            bandwidth = science.stats.bandwidth.nrd;
-
-        let kde: any = function (points: number[], i: number): number[][] {
-            var bw = bandwidth.call(this, sample);
+        kde(points: number[], i: number): number[][] {
+            let bw = this.m_bandwidth.call(this, this.m_sample);
+            let vm = this;
 
             return points.map(function (x) {
                 var i = -1,
                     y = 0,
-                    n = sample.length;
+                    n = vm.m_sample.length;
                 while (++i < n) {
-                    y += kernel((x - sample[i]) / bw);
+                    y += vm.m_kernel((x - vm.m_sample[i]) / bw);
                 }
                 return [x, y / bw / n];
             });
         }
 
-        kde.kernel = function (x) {
+        kernel(x) {
             if (!arguments.length) return kernel;
-            kernel = x;
-            return kde;
+            this.m_kernel = x;
+            return this;
         };
 
-        kde.sample = function (x) {
-            if (!arguments.length) return sample;
-            sample = x;
-            return kde;
+        sample(x) {
+            if (!arguments.length) return this.m_sample;
+            this.m_sample = x;
+            return this;
         };
 
-        kde.bandwidth = function (x) {
-            if (!arguments.length) return bandwidth;
-            bandwidth = science.functor(x);
-            return kde;
+        bandwidth(x) {
+            if (!arguments.length) return this.m_bandwidth;
+            this.m_bandwidth = science.functor(x);
+            return this;
         };
-
-        return kde;
     }
 }
