@@ -352,8 +352,9 @@ var D3;
              * Prepare the chart html elements
              */
             !function prepareChart() {
+                var settings = chart.settings;
                 // Build main div and chart div
-                chart.objs.mainDiv = d3.select(chart.settings.selector)
+                chart.objs.mainDiv = d3.select(settings.selector)
                     .style("max-width", chart.divWidth + "px");
                 // Add all the divs to make it centered and responsive
                 chart.objs.mainDiv.append("div")
@@ -362,12 +363,13 @@ var D3;
                     .append("div").attr("class", "outer-box")
                     .append("div").attr("class", "inner-box");
                 // Capture the inner div for the chart (where the chart actually is)
-                chart.selector = chart.settings.selector + " .inner-box";
+                chart.selector = settings.selector + " .inner-box";
                 chart.objs.chartDiv = d3.select(chart.selector);
                 d3.select(window).on('resize.' + chart.selector, chart.update);
                 // Create the svg
                 chart.objs.g = chart.objs.chartDiv.append("svg")
                     .attr("class", "chart-area")
+                    .attr("id", settings.chartId)
                     .attr("width", chart.width + (chart.margin.left + chart.margin.right))
                     .attr("height", chart.height + (chart.margin.top + chart.margin.bottom))
                     .append("g")
@@ -442,7 +444,8 @@ function makeDistroChart(settings) {
         chartSize: { width: 800, height: 400 },
         margin: { top: 15, right: 60, bottom: 40, left: 50 },
         constrainExtremes: false,
-        color: d3.scale.category10()
+        color: d3.scale.category10(),
+        chartId: "DistroChart"
     };
     for (var setting in settings) {
         defaultSettings[setting] = settings[setting];

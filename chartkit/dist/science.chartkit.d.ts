@@ -215,6 +215,10 @@ declare namespace D3 {
             width: number;
             height: number;
         };
+        /**
+         * The id attribute value of the svg node.
+        */
+        chartId: string;
         margin: Canvas.Margin;
         /**
          * Should the y scale include outliers?
