@@ -25,7 +25,7 @@
 
         public xScale = null;
         public yScale = null;
-        public colorFunct : getColorFunct= null;
+        public colorFunct: getColorFunct = null;
 
         public selector: string;
 
@@ -107,15 +107,15 @@
          * @param gName The bin name to use to get the x shift
          * @returns {{left: null, right: null, middle: null}}
         */
-        getObjWidth(objWidth: number, gName: string) {
-            var objSize = { left: null, right: null, middle: null };
-            var width = this.xScale.rangeBand() * (objWidth / 100);
-            var padding = (this.xScale.rangeBand() - width) / 2;
-            var gShift = this.xScale(gName);
-
-            objSize.middle = this.xScale.rangeBand() / 2 + gShift;
-            objSize.left = padding + gShift;
-            objSize.right = objSize.left + width;
+        getObjWidth(objWidth: number, gName: string): canvas.objectBounds {
+            var width: number = this.xScale.rangeBand() * (objWidth / 100);
+            var padding: number = (this.xScale.rangeBand() - width) / 2;
+            var gShift: number = this.xScale(gName);
+            var objSize = <canvas.objectBounds>{
+                left: padding + gShift,
+                right: objSize.left + width,
+                middle: this.xScale.rangeBand() / 2 + gShift
+            };
 
             return objSize;
         }
@@ -180,7 +180,7 @@
          * @param [options.colors=chart default] The color mapping for the violin plot
          * @returns {*} The chart object
          */
-        renderViolinPlot(options: D3.canvas. violinPlotOptions) {
+        renderViolinPlot(options: D3.canvas.violinPlotOptions) {
             return new D3.canvas.violinPlot(this, options);
         };
 

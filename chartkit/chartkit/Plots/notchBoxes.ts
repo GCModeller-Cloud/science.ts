@@ -24,6 +24,7 @@
         };
 
         private nOpts = $ts.clone(notchBoxes.defaultOptions);
+        private metrics: metrics;
 
         public constructor(public chart: Chart, options: notchBoxesOptions) {
             super();
@@ -63,9 +64,9 @@
          * @param notchBounds objBound object
          * @returns {string} A string in the proper format for a svg polygon
          */
-        private makeNotchBox(cNotch, notchBounds) {
+        private makeNotchBox(cNotch: notchBoxes, notchBounds) {
             var scaledValues = [];
-            var nOpts =  this.nOpts;
+            var nOpts = this.nOpts;
             let chart = this.chart;
 
             if (nOpts.notchStyle == 'box') {
@@ -112,7 +113,7 @@
          */
         change(updateOptions) {
             let nOpts = this.nOpts;
-            let chart = this.chart; 
+            let chart = this.chart;
 
             if (updateOptions) {
                 for (var key in updateOptions) {
@@ -159,14 +160,14 @@
         update() {
             var cName, cGroup;
             var chart = this.chart;
-            var nOpts =  this.nOpts;
+            var nOpts = this.nOpts;
 
             for (cName in chart.groupObjs) {
                 cGroup = chart.groupObjs[cName];
 
                 // Get the box size
-                var boxBounds = chart . getObjWidth(nOpts.boxWidth, cName);
-                var medianBounds = chart . getObjWidth(nOpts.medianWidth, cName);
+                var boxBounds = chart.getObjWidth(nOpts.boxWidth, cName);
+                var medianBounds = chart.getObjWidth(nOpts.medianWidth, cName);
 
                 var notchBounds = {
                     boxLeft: boxBounds.left,
@@ -184,7 +185,7 @@
                 if (cGroup.notchBox.objs.upperLine) {
                     var lineBounds = null;
                     if (nOpts.lineWidth) {
-                        lineBounds = chart . getObjWidth(nOpts.lineWidth, cName)
+                        lineBounds = chart.getObjWidth(nOpts.lineWidth, cName)
                     } else {
                         lineBounds = objBounds
                     }
@@ -212,13 +213,13 @@
          */
         prepareNotchBoxes() {
             var cName, cNotch;
-            var nOpts =  this.nOpts;
-            var chart = this.chart ;
+            var nOpts = this.nOpts;
+            var chart = this.chart;
 
             if (nOpts && nOpts.colors) {
-                this.colorFunct = this.chart. getColorFunct(nOpts.colors);
+                this.colorFunct = this.chart.getColorFunct(nOpts.colors);
             } else {
-                this.colorFunct = this. chart.colorFunct
+                this.colorFunct = this.chart.colorFunct
             }
 
             if (nOpts.show == false) {
@@ -252,7 +253,7 @@
                 }
             }
         };
-               
+
         protected hookEvt() {
             d3.select(window).on('resize.' + this.chart.selector + '.notchBox', this.update);
         }

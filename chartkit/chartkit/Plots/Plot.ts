@@ -21,8 +21,16 @@
         median: number;
         quartile1: number;
         min: number;
-        upperInnerFence: number ;
-        lowerInnerFence: number ;
+        upperInnerFence: number;
+        lowerInnerFence: number;
         mean: number;
+        upperNotch: number;
+        lowerNotch: number;
+    }
+
+    export interface objectBounds {
+        left: number;
+        right: number;
+        middle: number;
     }
 }
