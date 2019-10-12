@@ -25,7 +25,7 @@
 
         private nOpts = $ts.clone(notchBoxes.defaultOptions);
 
-        public constructor(public chart: Chart, options: any) {
+        public constructor(public chart: Chart, options: notchBoxesOptions) {
             super();
 
             for (var option in options) {

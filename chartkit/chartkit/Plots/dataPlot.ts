@@ -4,7 +4,7 @@
         showPlot: boolean
         plotType: string
         pointSize: number
-        showLines: boolean
+        showLines: boolean | {}
         showBeanLines: boolean
         beanWidth: number
     }
@@ -28,9 +28,13 @@
         /**
          * The lines don't fit into a group bucket so they live under the dataPlot object
         */
-        private objs = {};
+        private objs = {
+            g: null,
+            lines: null
+        };
+        private colorFunct: getColorFunct;
 
-        public constructor(public chart: Chart, options: any) {
+        public constructor(public chart: Chart, options: dataPlotOptions) {
             super();
 
             for (var option in options) {
@@ -53,8 +57,8 @@
          * @param updateOptions
          */
         change(updateOptions) {
-            let dOpts =  this.dOpts;
-            
+            let dOpts = this.dOpts;
+
             if (updateOptions) {
                 for (var key in updateOptions) {
                     dOpts[key] = updateOptions[key]
@@ -72,7 +76,7 @@
         };
 
         reset() {
-            this.change(defaultOptions)
+            this.change(dataPlot.defaultOptions)
         };
         show(opts) {
             if (opts !== undefined) {
@@ -102,8 +106,8 @@
          */
         update() {
             var cName, cGroup, cPlot;
-            var chart =  this.chart;
-            var dOpts =  this.dOpts;
+            var chart = this.chart;
+            var dOpts = this.dOpts;
 
             // Metrics lines
             if (this.objs.g) {
@@ -126,7 +130,7 @@
 
                 if (cPlot.objs.points) {
                     if (dOpts.plotType == 'beeswarm') {
-                        var swarmBounds = chart. getObjWidth(100, cName);
+                        var swarmBounds = chart.getObjWidth(100, cName);
                         var yPtScale = chart.yScale.copy()
                             .range([Math.floor(chart.yScale.range()[0] / dOpts.pointSize), 0])
                             .interpolate(d3.interpolateRound)
@@ -149,7 +153,7 @@
                         for (var row in ptsObj) {
                             var leftMin = swarmBounds.left + (Math.max((maxWidth - ptsObj[row].length) / 2, 0) * dOpts.pointSize);
                             var col = 0;
-                            for (pt in ptsObj[row]) {
+                            for (let pt in ptsObj[row]) {
                                 ptsObj[row][pt].attr("cx", Math.min(leftMin + col * dOpts.pointSize, rightMax) + dOpts.pointSize / 2);
                                 col++
                             }
@@ -163,7 +167,7 @@
                             scatterWidth = typeof dOpts.plotType == 'number' ? dOpts.plotType : 20;
                         }
 
-                        plotBounds = chart . getObjWidth(scatterWidth, cName);
+                        plotBounds = chart.getObjWidth(scatterWidth, cName);
                         width = plotBounds.right - plotBounds.left;
 
                         for (var pt = 0; pt < cGroup.values.length; pt++) {
@@ -176,7 +180,7 @@
 
 
                 if (cPlot.objs.bean) {
-                    var beanBounds = chart . getObjWidth(dOpts.beanWidth, cName);
+                    var beanBounds = chart.getObjWidth(dOpts.beanWidth, cName);
                     for (var pt = 0; pt < cGroup.values.length; pt++) {
                         cPlot.objs.bean.lines[pt]
                             .attr("x1", beanBounds.left)
@@ -193,12 +197,12 @@
          */
         preparePlots() {
             var cName, cPlot;
-            var dOpts =  this.dOpts;
+            var dOpts = this.dOpts;
 
             if (dOpts && dOpts.colors) {
-                this.colorFunct = this. chart. getColorFunct(dOpts.colors);
+                this.colorFunct = this.chart.getColorFunct(dOpts.colors);
             } else {
-                this.colorFunct = this. chart.colorFunct
+                this.colorFunct = this.chart.colorFunct
             }
 
             if (dOpts.show == false) {
@@ -206,17 +210,18 @@
             }
 
             // Metrics lines
-           this.objs.g = this.chart.objs.g.append("g").attr("class", "metrics-lines");
+            this.objs.g = this.chart.objs.g.append("g").attr("class", "metrics-lines");
             if (dOpts.showLines && dOpts.showLines.length > 0) {
                 var cMetric;
-              
+                var chart = this.chart;
+
                 this.objs.lines = {};
-              
+
                 for (var line in dOpts.showLines) {
                     cMetric = dOpts.showLines[line];
                     this.objs.lines[cMetric] = {};
                     this.objs.lines[cMetric].values = [];
-                    for (var cGroup in this. chart.groupObjs) {
+                    for (var cGroup in this.chart.groupObjs) {
                         this.objs.lines[cMetric].values.push({
                             x: cGroup,
                             y: this.chart.groupObjs[cGroup].metrics[cMetric]
@@ -231,7 +236,7 @@
                         .attr("class", "line " + cMetric)
                         .attr("data-metric", cMetric)
                         .style("fill", 'none')
-                        .style("stroke", this. chart.colorFunct(cMetric));
+                        .style("stroke", this.chart.colorFunct(cMetric));
                 }
 
             }
@@ -240,13 +245,13 @@
             for (cName in this.chart.groupObjs) {
 
                 cPlot = this.chart.groupObjs[cName].dataPlots;
-                cPlot.objs.g = this. chart.groupObjs[cName].g.append("g").attr("class", "data-plot");
+                cPlot.objs.g = this.chart.groupObjs[cName].g.append("g").attr("class", "data-plot");
 
                 // Points Plot
                 if (dOpts.showPlot) {
                     cPlot.objs.points = { g: null, pts: [] };
                     cPlot.objs.points.g = cPlot.objs.g.append("g").attr("class", "points-plot");
-                    for (var pt = 0; pt < this. chart.groupObjs[cName].values.length; pt++) {
+                    for (var pt = 0; pt < this.chart.groupObjs[cName].values.length; pt++) {
                         cPlot.objs.points.pts.push(cPlot.objs.points.g.append("circle")
                             .attr("class", "point")
                             .attr('r', dOpts.pointSize / 2)// Options is diameter, r takes radius so divide by 2

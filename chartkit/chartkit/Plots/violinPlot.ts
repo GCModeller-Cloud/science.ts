@@ -33,7 +33,7 @@ namespace D3.canvas {
 
         public vOpts = $ts.clone(violinPlot.defaultOptions);
 
-        public constructor(public chart: Chart, options: any) {
+        public constructor(public chart: Chart, options: violinPlotOptions) {
             super();
 
             for (var option in options) {
@@ -253,9 +253,9 @@ namespace D3.canvas {
             let vOpts = this.vOpts;
 
             if (vOpts.colors) {
-                this.color = vm.getColorFunct(vOpts.colors);
+                this.colorFunct = vm.getColorFunct(vOpts.colors);
             } else {
-                this.color = vm.colorFunct
+                this.colorFunct = vm.colorFunct
             }
 
             if (vOpts.show == false) { return }
@@ -274,20 +274,20 @@ namespace D3.canvas {
                     //Area
                     cViolinPlot.objs.left.area = cViolinPlot.objs.left.g.append("path")
                         .attr("class", "area")
-                        .style("fill", this.color(cName));
+                        .style("fill", this.colorFunct(cName));
                     cViolinPlot.objs.right.area = cViolinPlot.objs.right.g.append("path")
                         .attr("class", "area")
-                        .style("fill", this.color(cName));
+                        .style("fill", this.colorFunct(cName));
 
                     //Lines
                     cViolinPlot.objs.left.line = cViolinPlot.objs.left.g.append("path")
                         .attr("class", "line")
                         .attr("fill", 'none')
-                        .style("stroke", this.color(cName));
+                        .style("stroke", this.colorFunct(cName));
                     cViolinPlot.objs.right.line = cViolinPlot.objs.right.g.append("path")
                         .attr("class", "line")
                         .attr("fill", 'none')
-                        .style("stroke", this.color(cName));
+                        .style("stroke", this.colorFunct(cName));
                 }
 
             }

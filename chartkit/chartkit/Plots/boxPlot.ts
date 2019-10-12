@@ -35,7 +35,7 @@ namespace D3.canvas {
 
         public bOpts = $ts.clone(boxPlot.defaultOptions);
 
-        public constructor(public chart: Chart, options: any) {
+        public constructor(public chart: Chart, options: boxPlotOptions) {
             super();
 
             for (var option in options) {
@@ -161,7 +161,8 @@ namespace D3.canvas {
                 var objBounds = chart . getObjWidth(bOpts.boxWidth, cName);
                 var width = (objBounds.right - objBounds.left);
 
-                var sMetrics = {}; //temp var for scaled (plottable) metric values
+                //temp var for scaled (plottable) metric values
+                var sMetrics : metrics =<any> {}; 
                 for (var attr in chart.groupObjs[cName].metrics) {
                     sMetrics[attr] = null;
                     sMetrics[attr] = chart.yScale(chart.groupObjs[cName].metrics[attr]);

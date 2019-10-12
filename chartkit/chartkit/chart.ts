@@ -1,5 +1,9 @@
 ﻿namespace D3 {
 
+    export interface getColorFunct {
+        (group: string): string;
+    }
+
     export class Chart {
 
         public yFormatter: D3.numberFormatter;
@@ -21,7 +25,7 @@
 
         public xScale = null;
         public yScale = null;
-        public colorFunct = null;
+        public colorFunct : getColorFunct= null;
 
         public selector: string;
 
@@ -49,9 +53,9 @@
          * @param metrics Object to use to get values for the group
          * @returns {Function} A function that provides the values for the tooltip
         */
-        tooltipHover(groupName, metrics) {
+        tooltipHover(groupName: string, metrics: canvas.metrics) {
             var tooltipString = "Group: " + groupName;
-            let vm = this;
+            let vm = this.objs;
 
             tooltipString += "<br\>Max: " + D3.formatAsFloat(metrics.max);
             tooltipString += "<br\>Q3: " + D3.formatAsFloat(metrics.quartile3);
@@ -60,8 +64,8 @@
             tooltipString += "<br\>Min: " + D3.formatAsFloat(metrics.min);
 
             return function () {
-                vm.objs.tooltip.transition().duration(200).style("opacity", 0.9);
-                vm.objs.tooltip.html(tooltipString)
+                vm.tooltip.transition().duration(200).style("opacity", 0.9);
+                vm.tooltip.html(tooltipString)
             };
         }
 
@@ -71,7 +75,7 @@
          * @param {function|[]|object} colorOptions
          * @returns {function} Function to be used to determine chart colors
         */
-        getColorFunct(colorOptions) {
+        getColorFunct(colorOptions: any): getColorFunct {
             if (typeof colorOptions == 'function') {
                 return colorOptions
             } else if (Array.isArray(colorOptions)) {
@@ -82,12 +86,12 @@
                     colorMap[cName] = colorOptions[cColor];
                     cColor = (cColor + 1) % colorOptions.length;
                 }
-                return function (group) {
+                return function (group: string) {
                     return colorMap[group];
                 }
             } else if (typeof colorOptions == 'object') {
                 // if an object is provided, assume it maps to  the colors
-                return function (group) {
+                return function (group: string) {
                     return colorOptions[group];
                 }
             } else {
@@ -103,11 +107,12 @@
          * @param gName The bin name to use to get the x shift
          * @returns {{left: null, right: null, middle: null}}
         */
-        getObjWidth(objWidth, gName) {
+        getObjWidth(objWidth: number, gName: string) {
             var objSize = { left: null, right: null, middle: null };
             var width = this.xScale.rangeBand() * (objWidth / 100);
             var padding = (this.xScale.rangeBand() - width) / 2;
             var gShift = this.xScale(gName);
+
             objSize.middle = this.xScale.rangeBand() / 2 + gShift;
             objSize.left = padding + gShift;
             objSize.right = objSize.left + width;
@@ -175,7 +180,7 @@
          * @param [options.colors=chart default] The color mapping for the violin plot
          * @returns {*} The chart object
          */
-        renderViolinPlot(options) {
+        renderViolinPlot(options: D3.canvas. violinPlotOptions) {
             return new D3.canvas.violinPlot(this, options);
         };
 
@@ -197,7 +202,7 @@
          * @param [options.colors=chart default] The color mapping for the box plot
          * @returns {*} The chart object
          */
-        renderBoxPlot(options) {
+        renderBoxPlot(options: D3.canvas.boxPlotOptions) {
             return new D3.canvas.boxPlot(this, options);
         };
 
@@ -215,7 +220,7 @@
          * @param [options.colors=chart default] The color mapping for the notch boxes
          * @returns {*} The chart object
          */
-        renderNotchBoxes(options) {
+        renderNotchBoxes(options: D3.canvas.notchBoxesOptions) {
             return new D3.canvas.notchBoxes(this, options);
         };
 
@@ -234,7 +239,7 @@
          * @returns {*} The chart object
          *
          */
-        renderDataPlots(options) {
+        renderDataPlots(options: D3.canvas.dataPlotOptions) {
             return new D3.canvas.dataPlot(this, options);
         };
     }
