@@ -31,7 +31,8 @@ function makeDistroChart(settings: D3.settings): D3.Chart {
         chartSize: { width: 800, height: 400 },
         margin: { top: 15, right: 60, bottom: 40, left: 50 },
         constrainExtremes: false,
-        color: d3.scale.category10()
+        color: d3.scale.category10(),
+        chartId: "DistroChart"
     };
 
     for (var setting in settings) {

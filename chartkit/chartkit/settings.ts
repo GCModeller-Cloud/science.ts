@@ -34,7 +34,11 @@ namespace D3 {
          * 'linear' or 'log' - y scale of the chart
         */
         scale: string
-        chartSize: { width: number, height: number } 
+        chartSize: { width: number, height: number }
+        /**
+         * The id attribute value of the svg node.
+        */
+        chartId: string;
         margin: Canvas.Margin;
 
         /**
