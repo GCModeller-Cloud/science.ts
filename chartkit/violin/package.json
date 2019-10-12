@@ -1,0 +1,20 @@
+{
+  "name": "violin",
+  "version": "0.0.0",
+  "description": "violin",
+  "main": "app.js",
+  "author": {
+    "name": ""
+  },
+  "scripts": {
+    "build": "tsc --build",
+    "clean": "tsc --build --clean"
+  },
+  "devDependencies": {
+    "@types/node": "^8.0.14",
+    "typescript": "^3.2.2"
+  },
+  "dependencies": {
+    "@types/d3": "^3.5.43"
+  }
+}

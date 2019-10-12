@@ -1,8 +1,8 @@
 ﻿namespace science.lin.decompose {
 
-    export function decompose(A) {
+    export function decompose(A: number[][]) {
         var n = A.length, // column dimension
-            V = [],
+            V: number[][] = [],
             d = [],
             e = [];
 
@@ -13,6 +13,7 @@
         }
 
         var symmetric = true;
+
         for (var j = 0; j < n; j++) {
             for (var i = 0; i < n; i++) {
                 if (A[i][j] !== A[j][i]) {
@@ -41,12 +42,14 @@
             science.lin.decompose.Hqr2(d, e, H, V);
         }
 
-        var D = [];
+        var D: number[][] = [];
+
         for (var i = 0; i < n; i++) {
             var row = D[i] = [];
             for (var j = 0; j < n; j++) row[j] = i === j ? d[i] : 0;
             D[i][e[i] > 0 ? i + 1 : i - 1] = e[i];
         }
+
         return { D: D, V: V };
     }
 

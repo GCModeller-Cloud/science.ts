@@ -15,6 +15,7 @@
             i = -1,
             n = Math.min(a.length, b.length);
         while (++i < n) s += a[i] * b[i];
+
         return s;
     };
 
@@ -24,7 +25,7 @@
 
     export function normalize(p) {
         var length = science.lin.length(p);
-        return p.map(function (d) { return d / length; });
+        return p.map(d => d / length);
     };
 
     // 4x4 matrix determinant.

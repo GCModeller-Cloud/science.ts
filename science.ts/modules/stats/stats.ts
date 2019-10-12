@@ -1,4 +1,14 @@
-﻿namespace science.stats {
+﻿/// <reference path="hcluster.ts" />
+/// <reference path="kmeans.ts" />
+/// <reference path="kde.ts" />
+/// <reference path="loess.ts" />
+
+namespace science.stats {
+
+    export const hcluster = new hclusterFunction();
+    export const kmeans = new kmeansFunction();
+    export const kde = new kdeFunction();
+    export const LOESS = new loess();
 
     // Based on implementation in http://picomath.org/.
     export function erf(x) {
