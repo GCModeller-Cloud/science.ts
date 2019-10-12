@@ -1261,7 +1261,11 @@ var D3;
                             lineBounds = chart.getObjWidth(nOpts.lineWidth, cName);
                         }
                         else {
-                            lineBounds = objBounds;
+                            lineBounds = {
+                                left: 1,
+                                right: 1,
+                                middle: 1
+                            };
                         }
                         var confidenceLines = {
                             upper: chart.yScale(cGroup.metrics.upperNotch),

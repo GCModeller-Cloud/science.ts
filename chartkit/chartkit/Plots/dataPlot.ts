@@ -32,7 +32,6 @@
             g: null,
             lines: null
         };
-        private colorFunct: getColorFunct;
 
         public constructor(public chart: Chart, options: dataPlotOptions) {
             super();

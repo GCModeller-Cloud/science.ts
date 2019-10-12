@@ -160,6 +160,9 @@ declare namespace D3 {
     interface numberFormatter {
         (d: number): string;
     }
+    interface kernelFunction {
+        (x: number): number;
+    }
     /**
      * Adds jitter to the  scatter point plot
      *
@@ -168,9 +171,12 @@ declare namespace D3 {
      * @returns {number}
      */
     function addJitter(doJitter: boolean, width: number): number;
-    function kernelDensityEstimator(kernel: any, x: any): (sample: any) => any;
-    function eKernel(scale: any): (u: any) => number;
-    function eKernelTest(kernel: any, array: any): (testX: any) => number;
+    function kernelDensityEstimator(kernel: kernelFunction, x: number[]): (sample: number[]) => {
+        x: number;
+        y: number;
+    }[];
+    function eKernel(scale: number): (u: number) => number;
+    function eKernelTest(kernel: kernelFunction, array: number[]): (testX: any) => number;
 }
 declare namespace D3 {
     /**
@@ -304,7 +310,6 @@ declare namespace D3.canvas {
          * The lines don't fit into a group bucket so they live under the dataPlot object
         */
         private objs;
-        private colorFunct;
         constructor(chart: Chart, options: dataPlotOptions);
         /**
          * Take updated options and redraw the data plots
