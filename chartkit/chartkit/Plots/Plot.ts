@@ -15,6 +15,9 @@
         colors: getColorFunct;
     }
 
+    /**
+     * These are the original non-scaled values
+    */
     export interface metrics {
         max: number;
         quartile3: number;
@@ -23,9 +26,12 @@
         min: number;
         upperInnerFence: number;
         lowerInnerFence: number;
+        lowerOuterFence: number;
+        upperOuterFence: number;
         mean: number;
         upperNotch: number;
         lowerNotch: number;
+        iqr: number;
     }
 
     export interface objectBounds {

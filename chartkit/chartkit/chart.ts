@@ -7,7 +7,7 @@
     export class Chart {
 
         public yFormatter: D3.numberFormatter;
-        public data: any;
+        public data: {}[];
         /**
          * The data organized by grouping and sorted as 
          * well as any metadata for the groups

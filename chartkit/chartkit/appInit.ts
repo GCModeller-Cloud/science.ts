@@ -1,71 +1,61 @@
 ﻿namespace D3.app {
 
+    function calcMetrics(values: number[]) {
+        var metrics: canvas.metrics = <any>{};
+
+        metrics.min = d3.min(values);
+        metrics.quartile1 = d3.quantile(values, 0.25);
+        metrics.median = d3.median(values);
+        metrics.mean = d3.mean(values);
+        metrics.quartile3 = d3.quantile(values, 0.75);
+        metrics.max = d3.max(values);
+        metrics.iqr = metrics.quartile3 - metrics.quartile1;
+
+        // The inner fences are the closest value to the IQR 
+        // without going past it (assumes sorted lists)
+        var LIF = metrics.quartile1 - (1.5 * metrics.iqr);
+        var UIF = metrics.quartile3 + (1.5 * metrics.iqr);
+
+        for (var i = 0; i <= values.length; i++) {
+            if (values[i] < LIF) {
+                continue;
+            }
+            if (!metrics.lowerInnerFence && values[i] >= LIF) {
+                metrics.lowerInnerFence = values[i];
+                continue;
+            }
+            if (values[i] > UIF) {
+                metrics.upperInnerFence = values[i - 1];
+                break;
+            }
+        }
+
+        metrics.lowerOuterFence = metrics.quartile1 - (3 * metrics.iqr);
+        metrics.upperOuterFence = metrics.quartile3 + (3 * metrics.iqr);
+
+        if (!metrics.lowerInnerFence) {
+            metrics.lowerInnerFence = metrics.min;
+        }
+        if (!metrics.upperInnerFence) {
+            metrics.upperInnerFence = metrics.max;
+        }
+
+        return metrics
+    }
+
     export function init(chart: Chart): Chart {
+
         /**
          * Parse the data and calculates base values for the plots
         */
         !function prepareData() {
-            function calcMetrics(values) {
-
-                var metrics = { //These are the original non锟絪caled values
-                    max: null,
-                    upperOuterFence: null,
-                    upperInnerFence: null,
-                    quartile3: null,
-                    median: null,
-                    mean: null,
-                    iqr: null,
-                    quartile1: null,
-                    lowerInnerFence: null,
-                    lowerOuterFence: null,
-                    min: null
-                };
-
-                metrics.min = d3.min(values);
-                metrics.quartile1 = d3.quantile(values, 0.25);
-                metrics.median = d3.median(values);
-                metrics.mean = d3.mean(values);
-                metrics.quartile3 = d3.quantile(values, 0.75);
-                metrics.max = d3.max(values);
-                metrics.iqr = metrics.quartile3 - metrics.quartile1;
-
-                //The inner fences are the closest value to the IQR without going past it (assumes sorted lists)
-                var LIF = metrics.quartile1 - (1.5 * metrics.iqr);
-                var UIF = metrics.quartile3 + (1.5 * metrics.iqr);
-                for (var i = 0; i <= values.length; i++) {
-                    if (values[i] < LIF) {
-                        continue;
-                    }
-                    if (!metrics.lowerInnerFence && values[i] >= LIF) {
-                        metrics.lowerInnerFence = values[i];
-                        continue;
-                    }
-                    if (values[i] > UIF) {
-                        metrics.upperInnerFence = values[i - 1];
-                        break;
-                    }
-                }
-
-
-                metrics.lowerOuterFence = metrics.quartile1 - (3 * metrics.iqr);
-                metrics.upperOuterFence = metrics.quartile3 + (3 * metrics.iqr);
-                if (!metrics.lowerInnerFence) {
-                    metrics.lowerInnerFence = metrics.min;
-                }
-                if (!metrics.upperInnerFence) {
-                    metrics.upperInnerFence = metrics.max;
-                }
-                return metrics
-            }
-
             var current_x = null;
             var current_y = null;
-            var current_row;
 
             // Group the values
-            for (current_row = 0; current_row < chart.data.length; current_row++) {
-                current_x = chart.data[current_row][chart.settings.xName];
-                current_y = chart.data[current_row][chart.settings.yName];
+            for (let current_row of chart.data) {
+                current_x = current_row[chart.settings.xName];
+                current_y = current_row[chart.settings.yName];
 
                 if (chart.groupObjs.hasOwnProperty(current_x)) {
                     chart.groupObjs[current_x].values.push(current_y);
@@ -188,7 +178,7 @@
             // Create tooltip div
             chart.objs.tooltip = chart.objs.mainDiv.append('div').attr('class', 'tooltip');
 
-            let page :{pageX:number , pageY: number }= <any>d3.event;
+            let page: { pageX: number, pageY: number } = <any>d3.event;
 
             for (var cName in chart.groupObjs) {
                 chart.groupObjs[cName].g = chart.objs.g.append("g").attr("class", "group");
