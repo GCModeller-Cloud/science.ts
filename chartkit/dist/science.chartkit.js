@@ -40,15 +40,15 @@ var D3;
         */
         Chart.prototype.tooltipHover = function (groupName, metrics) {
             var tooltipString = "Group: " + groupName;
-            var vm = this;
+            var vm = this.objs;
             tooltipString += "<br\>Max: " + D3.formatAsFloat(metrics.max);
             tooltipString += "<br\>Q3: " + D3.formatAsFloat(metrics.quartile3);
             tooltipString += "<br\>Median: " + D3.formatAsFloat(metrics.median);
             tooltipString += "<br\>Q1: " + D3.formatAsFloat(metrics.quartile1);
             tooltipString += "<br\>Min: " + D3.formatAsFloat(metrics.min);
             return function () {
-                vm.objs.tooltip.transition().duration(200).style("opacity", 0.9);
-                vm.objs.tooltip.html(tooltipString);
+                vm.tooltip.transition().duration(200).style("opacity", 0.9);
+                vm.tooltip.html(tooltipString);
             };
         };
         /**
@@ -91,13 +91,14 @@ var D3;
          * @returns {{left: null, right: null, middle: null}}
         */
         Chart.prototype.getObjWidth = function (objWidth, gName) {
-            var objSize = { left: null, right: null, middle: null };
             var width = this.xScale.rangeBand() * (objWidth / 100);
             var padding = (this.xScale.rangeBand() - width) / 2;
             var gShift = this.xScale(gName);
-            objSize.middle = this.xScale.rangeBand() / 2 + gShift;
-            objSize.left = padding + gShift;
-            objSize.right = objSize.left + width;
+            var objSize = {
+                left: padding + gShift,
+                right: objSize.left + width,
+                middle: this.xScale.rangeBand() / 2 + gShift
+            };
             return objSize;
         };
         /**
@@ -648,7 +649,8 @@ var D3;
                     // Get the box width
                     var objBounds = chart.getObjWidth(bOpts.boxWidth, cName);
                     var width = (objBounds.right - objBounds.left);
-                    var sMetrics = {}; //temp var for scaled (plottable) metric values
+                    //temp var for scaled (plottable) metric values
+                    var sMetrics = {};
                     for (var attr in chart.groupObjs[cName].metrics) {
                         sMetrics[attr] = null;
                         sMetrics[attr] = chart.yScale(chart.groupObjs[cName].metrics[attr]);
@@ -860,7 +862,10 @@ var D3;
                 /**
                  * The lines don't fit into a group bucket so they live under the dataPlot object
                 */
-                _this.objs = {};
+                _this.objs = {
+                    g: null,
+                    lines: null
+                };
                 for (var option in options) {
                     _this.dOpts[option] = options[option];
                 }
@@ -894,7 +899,7 @@ var D3;
             };
             ;
             dataPlot.prototype.reset = function () {
-                this.change(defaultOptions);
+                this.change(dataPlot.defaultOptions);
             };
             ;
             dataPlot.prototype.show = function (opts) {
@@ -971,8 +976,8 @@ var D3;
                             for (var row in ptsObj) {
                                 var leftMin = swarmBounds.left + (Math.max((maxWidth - ptsObj[row].length) / 2, 0) * dOpts.pointSize);
                                 var col = 0;
-                                for (pt in ptsObj[row]) {
-                                    ptsObj[row][pt].attr("cx", Math.min(leftMin + col * dOpts.pointSize, rightMax) + dOpts.pointSize / 2);
+                                for (var pt_1 in ptsObj[row]) {
+                                    ptsObj[row][pt_1].attr("cx", Math.min(leftMin + col * dOpts.pointSize, rightMax) + dOpts.pointSize / 2);
                                     col++;
                                 }
                             }
@@ -1024,6 +1029,7 @@ var D3;
                 this.objs.g = this.chart.objs.g.append("g").attr("class", "metrics-lines");
                 if (dOpts.showLines && dOpts.showLines.length > 0) {
                     var cMetric;
+                    var chart = this.chart;
                     this.objs.lines = {};
                     for (var line in dOpts.showLines) {
                         cMetric = dOpts.showLines[line];
@@ -1536,10 +1542,10 @@ var D3;
                 var vm = this.chart;
                 var vOpts = this.vOpts;
                 if (vOpts.colors) {
-                    this.color = vm.getColorFunct(vOpts.colors);
+                    this.colorFunct = vm.getColorFunct(vOpts.colors);
                 }
                 else {
-                    this.color = vm.colorFunct;
+                    this.colorFunct = vm.colorFunct;
                 }
                 if (vOpts.show == false) {
                     return;
@@ -1555,19 +1561,19 @@ var D3;
                         //Area
                         cViolinPlot.objs.left.area = cViolinPlot.objs.left.g.append("path")
                             .attr("class", "area")
-                            .style("fill", this.color(cName));
+                            .style("fill", this.colorFunct(cName));
                         cViolinPlot.objs.right.area = cViolinPlot.objs.right.g.append("path")
                             .attr("class", "area")
-                            .style("fill", this.color(cName));
+                            .style("fill", this.colorFunct(cName));
                         //Lines
                         cViolinPlot.objs.left.line = cViolinPlot.objs.left.g.append("path")
                             .attr("class", "line")
                             .attr("fill", 'none')
-                            .style("stroke", this.color(cName));
+                            .style("stroke", this.colorFunct(cName));
                         cViolinPlot.objs.right.line = cViolinPlot.objs.right.g.append("path")
                             .attr("class", "line")
                             .attr("fill", 'none')
-                            .style("stroke", this.color(cName));
+                            .style("stroke", this.colorFunct(cName));
                     }
                 }
             };

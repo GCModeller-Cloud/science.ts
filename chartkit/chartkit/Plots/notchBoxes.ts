@@ -44,6 +44,7 @@
             */
             !function calcNotches() {
                 var cNotch, modifier;
+                
                 for (var cName in chart.groupObjs) {
                     cNotch = chart.groupObjs[cName];
                     modifier = (1.57 * (cNotch.metrics.iqr / Math.sqrt(cNotch.values.length)));
@@ -183,11 +184,16 @@
                         .attr("points", this.makeNotchBox(cGroup, notchBounds));
                 }
                 if (cGroup.notchBox.objs.upperLine) {
-                    var lineBounds = null;
+                    var lineBounds: objectBounds = null;
+
                     if (nOpts.lineWidth) {
                         lineBounds = chart.getObjWidth(nOpts.lineWidth, cName)
                     } else {
-                        lineBounds = objBounds
+                        lineBounds = <objectBounds>{
+                            left: 1,
+                            right: 1,
+                            middle: 1
+                        }
                     }
 
                     var confidenceLines = {

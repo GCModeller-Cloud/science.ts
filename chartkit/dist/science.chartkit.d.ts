@@ -1,6 +1,9 @@
 /// <reference path="../../../build/linq.d.ts" />
 /// <reference path="../../../build/svg.d.ts" />
 declare namespace D3 {
+    interface getColorFunct {
+        (group: string): string;
+    }
     class Chart {
         settings: settings;
         yFormatter: D3.numberFormatter;
@@ -21,7 +24,7 @@ declare namespace D3 {
         };
         xScale: any;
         yScale: any;
-        colorFunct: any;
+        colorFunct: getColorFunct;
         selector: string;
         width: number;
         height: number;
@@ -39,14 +42,14 @@ declare namespace D3 {
          * @param metrics Object to use to get values for the group
          * @returns {Function} A function that provides the values for the tooltip
         */
-        tooltipHover(groupName: any, metrics: any): () => void;
+        tooltipHover(groupName: string, metrics: canvas.metrics): () => void;
         /**
          * Takes an array, function, or object mapping and created a color function from it
          *
          * @param {function|[]|object} colorOptions
          * @returns {function} Function to be used to determine chart colors
         */
-        getColorFunct(colorOptions: any): any;
+        getColorFunct(colorOptions: any): getColorFunct;
         /**
          * Takes a percentage as returns the values that correspond to
          * that percentage of the group range witdh
@@ -55,11 +58,7 @@ declare namespace D3 {
          * @param gName The bin name to use to get the x shift
          * @returns {{left: null, right: null, middle: null}}
         */
-        getObjWidth(objWidth: any, gName: any): {
-            left: any;
-            right: any;
-            middle: any;
-        };
+        getObjWidth(objWidth: number, gName: string): canvas.objectBounds;
         /**
          * Updates the chart based on the current settings and window size
          *
@@ -82,7 +81,7 @@ declare namespace D3 {
          * @param [options.colors=chart default] The color mapping for the violin plot
          * @returns {*} The chart object
          */
-        renderViolinPlot(options: any): canvas.violinPlot;
+        renderViolinPlot(options: D3.canvas.violinPlotOptions): canvas.violinPlot;
         /**
          * Render a box plot on the current chart
          *
@@ -101,7 +100,7 @@ declare namespace D3 {
          * @param [options.colors=chart default] The color mapping for the box plot
          * @returns {*} The chart object
          */
-        renderBoxPlot(options: any): canvas.boxPlot;
+        renderBoxPlot(options: D3.canvas.boxPlotOptions): canvas.boxPlot;
         /**
          * Render a notched box on the current chart
          *
@@ -116,7 +115,7 @@ declare namespace D3 {
          * @param [options.colors=chart default] The color mapping for the notch boxes
          * @returns {*} The chart object
          */
-        renderNotchBoxes(options: any): canvas.notchBoxes;
+        renderNotchBoxes(options: D3.canvas.notchBoxesOptions): canvas.notchBoxes;
         /**
          * Render a raw data in various forms
          *
@@ -132,7 +131,7 @@ declare namespace D3 {
          * @returns {*} The chart object
          *
          */
-        renderDataPlots(options: any): canvas.dataPlot;
+        renderDataPlots(options: D3.canvas.dataPlotOptions): canvas.dataPlot;
     }
 }
 declare namespace D3.app {
@@ -220,13 +219,31 @@ declare namespace D3 {
 }
 declare namespace D3.canvas {
     abstract class Plot {
+        protected colorFunct: getColorFunct;
         protected abstract hookEvt(): any;
         protected abstract reset(): any;
         protected abstract update(): any;
     }
     interface PlotOptions {
         show: boolean;
-        colors: null;
+        colors: getColorFunct;
+    }
+    interface metrics {
+        max: number;
+        quartile3: number;
+        median: number;
+        quartile1: number;
+        min: number;
+        upperInnerFence: number;
+        lowerInnerFence: number;
+        mean: number;
+        upperNotch: number;
+        lowerNotch: number;
+    }
+    interface objectBounds {
+        left: number;
+        right: number;
+        middle: number;
     }
 }
 declare namespace D3.canvas {
@@ -246,7 +263,7 @@ declare namespace D3.canvas {
         chart: Chart;
         static readonly defaultOptions: boxPlotOptions;
         bOpts: boxPlotOptions;
-        constructor(chart: Chart, options: any);
+        constructor(chart: Chart, options: boxPlotOptions);
         protected hookEvt(): void;
         /**
          * Calculates all the outlier points for each group
@@ -275,7 +292,7 @@ declare namespace D3.canvas {
         showPlot: boolean;
         plotType: string;
         pointSize: number;
-        showLines: boolean;
+        showLines: boolean | {};
         showBeanLines: boolean;
         beanWidth: number;
     }
@@ -287,7 +304,8 @@ declare namespace D3.canvas {
          * The lines don't fit into a group bucket so they live under the dataPlot object
         */
         private objs;
-        constructor(chart: Chart, options: any);
+        private colorFunct;
+        constructor(chart: Chart, options: dataPlotOptions);
         /**
          * Take updated options and redraw the data plots
          * @param updateOptions
@@ -320,7 +338,8 @@ declare namespace D3.canvas {
         chart: Chart;
         static readonly defaultOptions: notchBoxesOptions;
         private nOpts;
-        constructor(chart: Chart, options: any);
+        private metrics;
+        constructor(chart: Chart, options: notchBoxesOptions);
         /**
          * Makes the svg path string for a notched box
          * @param cNotch Current notch box object
@@ -366,7 +385,7 @@ declare namespace D3.canvas {
         chart: Chart;
         static readonly defaultOptions: violinPlotOptions;
         vOpts: violinPlotOptions;
-        constructor(chart: Chart, options: any);
+        constructor(chart: Chart, options: violinPlotOptions);
         protected hookEvt(): void;
         /**
          * Take a new set of options and redraw the violin
