@@ -12,7 +12,7 @@
          * The data organized by grouping and sorted as 
          * well as any metadata for the groups
         */
-        public groupObjs: {}
+        public groupObjs = {}
         public objs = {
             mainDiv: null,
             chartDiv: null,

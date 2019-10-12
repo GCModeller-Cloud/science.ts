@@ -38,5 +38,5 @@ function makeDistroChart(settings: D3.settings): D3.Chart {
         defaultSettings[setting] = settings[setting]
     }
 
-    return D3.app.init(new D3.Chart(settings));
+    return D3.app.init(new D3.Chart(defaultSettings));
 }

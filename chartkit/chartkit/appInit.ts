@@ -45,6 +45,8 @@
 
     export function init(chart: Chart): Chart {
 
+        console.dir(chart);
+
         /**
          * Parse the data and calculates base values for the plots
         */

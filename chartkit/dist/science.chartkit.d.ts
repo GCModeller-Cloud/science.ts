@@ -7,7 +7,7 @@ declare namespace D3 {
     class Chart {
         settings: settings;
         yFormatter: D3.numberFormatter;
-        data: any;
+        data: {}[];
         /**
          * The data organized by grouping and sorted as
          * well as any metadata for the groups
@@ -234,6 +234,9 @@ declare namespace D3.canvas {
         show: boolean;
         colors: getColorFunct;
     }
+    /**
+     * These are the original non-scaled values
+    */
     interface metrics {
         max: number;
         quartile3: number;
@@ -242,9 +245,12 @@ declare namespace D3.canvas {
         min: number;
         upperInnerFence: number;
         lowerInnerFence: number;
+        lowerOuterFence: number;
+        upperOuterFence: number;
         mean: number;
         upperNotch: number;
         lowerNotch: number;
+        iqr: number;
     }
     interface objectBounds {
         left: number;
