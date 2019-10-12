@@ -4,7 +4,7 @@ var __extends = (this && this.__extends) || (function () {
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    }
+    };
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -22,7 +22,8 @@ var D3;
                 g: null,
                 xAxis: null,
                 yAxis: null,
-                tooltip: null
+                tooltip: null,
+                axes: null
             };
             this.xScale = null;
             this.yScale = null;
@@ -393,13 +394,14 @@ var D3;
                     .text(chart.yAxisLable);
                 // Create tooltip div
                 chart.objs.tooltip = chart.objs.mainDiv.append('div').attr('class', 'tooltip');
+                var page = d3.event;
                 for (var cName in chart.groupObjs) {
                     chart.groupObjs[cName].g = chart.objs.g.append("g").attr("class", "group");
                     chart.groupObjs[cName].g.on("mouseover", function () {
                         chart.objs.tooltip
                             .style("display", null)
-                            .style("left", (d3.event.pageX) + "px")
-                            .style("top", (d3.event.pageY - 28) + "px");
+                            .style("left", (page.pageX) + "px")
+                            .style("top", (page.pageY - 28) + "px");
                     }).on("mouseout", function () {
                         chart.objs.tooltip.style("display", "none");
                     }).on("mousemove", chart.tooltipHover(cName, chart.groupObjs[cName].metrics));
@@ -438,7 +440,7 @@ function makeDistroChart(settings) {
         xName: null,
         yName: null,
         selector: null,
-        axisLables: null,
+        axisLabels: null,
         yTicks: 1,
         scale: 'linear',
         chartSize: { width: 800, height: 400 },
@@ -591,46 +593,47 @@ var D3;
              * @param updateOptions
              */
             boxPlot.prototype.change = function (updateOptions) {
+                var bOpts = this.bOpts;
                 if (updateOptions) {
                     for (var key in updateOptions) {
                         bOpts[key] = updateOptions[key];
                     }
                 }
-                for (var cName in chart.groupObjs) {
-                    chart.groupObjs[cName].boxPlot.objs.g.remove();
+                for (var cName in this.chart.groupObjs) {
+                    this.chart.groupObjs[cName].boxPlot.objs.g.remove();
                 }
-                chart.boxPlots.prepareBoxPlot();
-                chart.boxPlots.update();
+                this.prepareBoxPlot();
+                this.update();
             };
             ;
             boxPlot.prototype.reset = function () {
-                chart.boxPlots.change(defaultOptions);
+                this.change(boxPlot.defaultOptions);
             };
             ;
             boxPlot.prototype.show = function (opts) {
                 if (opts !== undefined) {
                     opts.show = true;
                     if (opts.reset) {
-                        chart.boxPlots.reset();
+                        this.reset();
                     }
                 }
                 else {
                     opts = { show: true };
                 }
-                chart.boxPlots.change(opts);
+                this.change(opts);
             };
             ;
             boxPlot.prototype.hide = function (opts) {
                 if (opts !== undefined) {
                     opts.show = false;
                     if (opts.reset) {
-                        chart.boxPlots.reset();
+                        this.reset();
                     }
                 }
                 else {
                     opts = { show: false };
                 }
-                chart.boxPlots.change(opts);
+                this.change(opts);
             };
             ;
             /**
@@ -638,10 +641,12 @@ var D3;
              */
             boxPlot.prototype.update = function () {
                 var cName, cBoxPlot;
+                var chart = this.chart;
+                var bOpts = this.bOpts;
                 for (cName in chart.groupObjs) {
                     cBoxPlot = chart.groupObjs[cName].boxPlot;
                     // Get the box width
-                    var objBounds = getObjWidth(bOpts.boxWidth, cName);
+                    var objBounds = chart.getObjWidth(bOpts.boxWidth, cName);
                     var width = (objBounds.right - objBounds.left);
                     var sMetrics = {}; //temp var for scaled (plottable) metric values
                     for (var attr in chart.groupObjs[cName].metrics) {
@@ -661,7 +666,7 @@ var D3;
                     // Lines
                     var lineBounds = null;
                     if (bOpts.lineWidth) {
-                        lineBounds = getObjWidth(bOpts.lineWidth, cName);
+                        lineBounds = chart.getObjWidth(bOpts.lineWidth, cName);
                     }
                     else {
                         lineBounds = objBounds;
@@ -735,11 +740,13 @@ var D3;
              */
             boxPlot.prototype.prepareBoxPlot = function () {
                 var cName, cBoxPlot;
+                var bOpts = this.bOpts;
+                var chart = this.chart;
                 if (bOpts.colors) {
-                    chart.boxPlots.colorFunct = getColorFunct(bOpts.colors);
+                    this.colorFunct = chart.getColorFunct(bOpts.colors);
                 }
                 else {
-                    chart.boxPlots.colorFunct = chart.colorFunct;
+                    this.colorFunct = chart.colorFunct;
                 }
                 if (bOpts.show == false) {
                     return;
@@ -751,8 +758,8 @@ var D3;
                     if (bOpts.showBox) {
                         cBoxPlot.objs.box = cBoxPlot.objs.g.append("rect")
                             .attr("class", "box")
-                            .style("fill", chart.boxPlots.colorFunct(cName))
-                            .style("stroke", chart.boxPlots.colorFunct(cName));
+                            .style("fill", this.colorFunct(cName))
+                            .style("stroke", this.colorFunct(cName));
                         //A stroke is added to the box with the group color, it is
                         // hidden by default and can be shown through css with stroke-width
                     }
@@ -764,7 +771,7 @@ var D3;
                         cBoxPlot.objs.median.circle = cBoxPlot.objs.g.append("circle")
                             .attr("class", "median")
                             .attr('r', bOpts.medianCSize)
-                            .style("fill", chart.boxPlots.colorFunct(cName));
+                            .style("fill", this.colorFunct(cName));
                     }
                     // Plot Mean (default no plot)
                     if (bOpts.showMean) {
@@ -774,7 +781,7 @@ var D3;
                         cBoxPlot.objs.mean.circle = cBoxPlot.objs.g.append("circle")
                             .attr("class", "mean")
                             .attr('r', bOpts.medianCSize)
-                            .style("fill", chart.boxPlots.colorFunct(cName));
+                            .style("fill", this.colorFunct(cName));
                     }
                     // Plot Whiskers (default show)
                     if (bOpts.showWhiskers) {
@@ -782,21 +789,21 @@ var D3;
                         cBoxPlot.objs.lowerWhisker = { fence: null, line: null };
                         cBoxPlot.objs.upperWhisker.fence = cBoxPlot.objs.g.append("line")
                             .attr("class", "upper whisker")
-                            .style("stroke", chart.boxPlots.colorFunct(cName));
+                            .style("stroke", this.colorFunct(cName));
                         cBoxPlot.objs.upperWhisker.line = cBoxPlot.objs.g.append("line")
                             .attr("class", "upper whisker")
-                            .style("stroke", chart.boxPlots.colorFunct(cName));
+                            .style("stroke", this.colorFunct(cName));
                         cBoxPlot.objs.lowerWhisker.fence = cBoxPlot.objs.g.append("line")
                             .attr("class", "lower whisker")
-                            .style("stroke", chart.boxPlots.colorFunct(cName));
+                            .style("stroke", this.colorFunct(cName));
                         cBoxPlot.objs.lowerWhisker.line = cBoxPlot.objs.g.append("line")
                             .attr("class", "lower whisker")
-                            .style("stroke", chart.boxPlots.colorFunct(cName));
+                            .style("stroke", this.colorFunct(cName));
                     }
                     // Plot outliers (default show)
                     if (bOpts.showOutliers) {
                         if (!cBoxPlot.objs.outliers)
-                            calcAllOutliers();
+                            this.calcAllOutliers();
                         var pt;
                         if (cBoxPlot.objs.outliers.length) {
                             var outDiv = cBoxPlot.objs.g.append("g").attr("class", "boxplot outliers");
@@ -804,7 +811,7 @@ var D3;
                                 cBoxPlot.objs.outliers[pt].point = outDiv.append("circle")
                                     .attr("class", "outlier")
                                     .attr('r', bOpts.outlierCSize)
-                                    .style("fill", chart.boxPlots.colorFunct(cName));
+                                    .style("fill", this.colorFunct(cName));
                             }
                         }
                         if (cBoxPlot.objs.extremes.length) {
@@ -813,7 +820,7 @@ var D3;
                                 cBoxPlot.objs.extremes[pt].point = extDiv.append("circle")
                                     .attr("class", "extreme")
                                     .attr('r', bOpts.outlierCSize)
-                                    .style("stroke", chart.boxPlots.colorFunct(cName));
+                                    .style("stroke", this.colorFunct(cName));
                             }
                         }
                     }
@@ -872,47 +879,48 @@ var D3;
              * @param updateOptions
              */
             dataPlot.prototype.change = function (updateOptions) {
+                var dOpts = this.dOpts;
                 if (updateOptions) {
                     for (var key in updateOptions) {
                         dOpts[key] = updateOptions[key];
                     }
                 }
-                chart.dataPlots.objs.g.remove();
-                for (var cName in chart.groupObjs) {
-                    chart.groupObjs[cName].dataPlots.objs.g.remove();
+                this.objs.g.remove();
+                for (var cName in this.chart.groupObjs) {
+                    this.chart.groupObjs[cName].dataPlots.objs.g.remove();
                 }
-                chart.dataPlots.preparePlots();
-                chart.dataPlots.update();
+                this.preparePlots();
+                this.update();
             };
             ;
             dataPlot.prototype.reset = function () {
-                chart.dataPlots.change(defaultOptions);
+                this.change(defaultOptions);
             };
             ;
             dataPlot.prototype.show = function (opts) {
                 if (opts !== undefined) {
                     opts.show = true;
                     if (opts.reset) {
-                        chart.dataPlots.reset();
+                        this.reset();
                     }
                 }
                 else {
                     opts = { show: true };
                 }
-                chart.dataPlots.change(opts);
+                this.change(opts);
             };
             ;
             dataPlot.prototype.hide = function (opts) {
                 if (opts !== undefined) {
                     opts.show = false;
                     if (opts.reset) {
-                        chart.dataPlots.reset();
+                        this.reset();
                     }
                 }
                 else {
                     opts = { show: false };
                 }
-                chart.dataPlots.change(opts);
+                this.change(opts);
             };
             ;
             /**
@@ -920,17 +928,19 @@ var D3;
              */
             dataPlot.prototype.update = function () {
                 var cName, cGroup, cPlot;
+                var chart = this.chart;
+                var dOpts = this.dOpts;
                 // Metrics lines
-                if (chart.dataPlots.objs.g) {
+                if (this.objs.g) {
                     var halfBand = chart.xScale.rangeBand() / 2; // find the middle of each band
-                    for (var cMetric in chart.dataPlots.objs.lines) {
-                        chart.dataPlots.objs.lines[cMetric].line
+                    for (var cMetric in this.objs.lines) {
+                        this.objs.lines[cMetric].line
                             .x(function (d) {
                             return chart.xScale(d.x) + halfBand;
                         });
-                        chart.dataPlots.objs.lines[cMetric].g
-                            .datum(chart.dataPlots.objs.lines[cMetric].values)
-                            .attr('d', chart.dataPlots.objs.lines[cMetric].line);
+                        this.objs.lines[cMetric].g
+                            .datum(this.objs.lines[cMetric].values)
+                            .attr('d', this.objs.lines[cMetric].line);
                     }
                 }
                 for (cName in chart.groupObjs) {
@@ -938,7 +948,7 @@ var D3;
                     cPlot = cGroup.dataPlots;
                     if (cPlot.objs.points) {
                         if (dOpts.plotType == 'beeswarm') {
-                            var swarmBounds = getObjWidth(100, cName);
+                            var swarmBounds = chart.getObjWidth(100, cName);
                             var yPtScale = chart.yScale.copy()
                                 .range([Math.floor(chart.yScale.range()[0] / dOpts.pointSize), 0])
                                 .interpolate(d3.interpolateRound)
@@ -973,7 +983,7 @@ var D3;
                                 //Default scatter percentage is 20% of box width
                                 scatterWidth = typeof dOpts.plotType == 'number' ? dOpts.plotType : 20;
                             }
-                            plotBounds = getObjWidth(scatterWidth, cName);
+                            plotBounds = chart.getObjWidth(scatterWidth, cName);
                             width = plotBounds.right - plotBounds.left;
                             for (var pt = 0; pt < cGroup.values.length; pt++) {
                                 cPlot.objs.points.pts[pt]
@@ -983,7 +993,7 @@ var D3;
                         }
                     }
                     if (cPlot.objs.bean) {
-                        var beanBounds = getObjWidth(dOpts.beanWidth, cName);
+                        var beanBounds = chart.getObjWidth(dOpts.beanWidth, cName);
                         for (var pt = 0; pt < cGroup.values.length; pt++) {
                             cPlot.objs.bean.lines[pt]
                                 .attr("x1", beanBounds.left)
@@ -1000,65 +1010,66 @@ var D3;
              */
             dataPlot.prototype.preparePlots = function () {
                 var cName, cPlot;
+                var dOpts = this.dOpts;
                 if (dOpts && dOpts.colors) {
-                    chart.dataPlots.colorFunct = getColorFunct(dOpts.colors);
+                    this.colorFunct = this.chart.getColorFunct(dOpts.colors);
                 }
                 else {
-                    chart.dataPlots.colorFunct = chart.colorFunct;
+                    this.colorFunct = this.chart.colorFunct;
                 }
                 if (dOpts.show == false) {
                     return;
                 }
                 // Metrics lines
-                chart.dataPlots.objs.g = chart.objs.g.append("g").attr("class", "metrics-lines");
+                this.objs.g = this.chart.objs.g.append("g").attr("class", "metrics-lines");
                 if (dOpts.showLines && dOpts.showLines.length > 0) {
-                    chart.dataPlots.objs.lines = {};
                     var cMetric;
+                    this.objs.lines = {};
                     for (var line in dOpts.showLines) {
                         cMetric = dOpts.showLines[line];
-                        chart.dataPlots.objs.lines[cMetric] = {};
-                        chart.dataPlots.objs.lines[cMetric].values = [];
-                        for (var cGroup in chart.groupObjs) {
-                            chart.dataPlots.objs.lines[cMetric].values.push({
+                        this.objs.lines[cMetric] = {};
+                        this.objs.lines[cMetric].values = [];
+                        for (var cGroup in this.chart.groupObjs) {
+                            this.objs.lines[cMetric].values.push({
                                 x: cGroup,
-                                y: chart.groupObjs[cGroup].metrics[cMetric]
+                                y: this.chart.groupObjs[cGroup].metrics[cMetric]
                             });
                         }
-                        chart.dataPlots.objs.lines[cMetric].line = d3.svg.line()
+                        this.objs.lines[cMetric].line = d3.svg.line()
                             .interpolate("cardinal")
                             .y(function (d) {
                             return chart.yScale(d.y);
                         });
-                        chart.dataPlots.objs.lines[cMetric].g = chart.dataPlots.objs.g.append("path")
+                        this.objs.lines[cMetric].g = this.objs.g.append("path")
                             .attr("class", "line " + cMetric)
                             .attr("data-metric", cMetric)
                             .style("fill", 'none')
-                            .style("stroke", chart.colorFunct(cMetric));
+                            .style("stroke", this.chart.colorFunct(cMetric));
                     }
                 }
-                for (cName in chart.groupObjs) {
-                    cPlot = chart.groupObjs[cName].dataPlots;
-                    cPlot.objs.g = chart.groupObjs[cName].g.append("g").attr("class", "data-plot");
+                for (cName in this.chart.groupObjs) {
+                    cPlot = this.chart.groupObjs[cName].dataPlots;
+                    cPlot.objs.g = this.chart.groupObjs[cName].g.append("g").attr("class", "data-plot");
                     // Points Plot
                     if (dOpts.showPlot) {
                         cPlot.objs.points = { g: null, pts: [] };
                         cPlot.objs.points.g = cPlot.objs.g.append("g").attr("class", "points-plot");
-                        for (var pt = 0; pt < chart.groupObjs[cName].values.length; pt++) {
+                        for (var pt = 0; pt < this.chart.groupObjs[cName].values.length; pt++) {
                             cPlot.objs.points.pts.push(cPlot.objs.points.g.append("circle")
                                 .attr("class", "point")
                                 .attr('r', dOpts.pointSize / 2) // Options is diameter, r takes radius so divide by 2
-                                .style("fill", chart.dataPlots.colorFunct(cName)));
+                                .style("fill", this.colorFunct(cName)));
                         }
                     }
                     // Bean lines
                     if (dOpts.showBeanLines) {
                         cPlot.objs.bean = { g: null, lines: [] };
                         cPlot.objs.bean.g = cPlot.objs.g.append("g").attr("class", "bean-plot");
-                        for (var pt = 0; pt < chart.groupObjs[cName].values.length; pt++) {
+                        for (var pt = 0; pt < this.chart.groupObjs[cName].values.length; pt++) {
                             cPlot.objs.bean.lines.push(cPlot.objs.bean.g.append("line")
                                 .attr("class", "bean line")
                                 .style("stroke-width", '1')
-                                .style("stroke", chart.dataPlots.colorFunct(cName)));
+                                .style("stroke", this.colorFunct(cName)));
                         }
                     }
                 }
@@ -1127,6 +1138,8 @@ var D3;
              */
             notchBoxes.prototype.makeNotchBox = function (cNotch, notchBounds) {
                 var scaledValues = [];
+                var nOpts = this.nOpts;
+                var chart = this.chart;
                 if (nOpts.notchStyle == 'box') {
                     scaledValues = [
                         [notchBounds.boxLeft, chart.yScale(cNotch.metrics.quartile1)],
@@ -1168,6 +1181,8 @@ var D3;
              * @param updateOptions
              */
             notchBoxes.prototype.change = function (updateOptions) {
+                var nOpts = this.nOpts;
+                var chart = this.chart;
                 if (updateOptions) {
                     for (var key in updateOptions) {
                         nOpts[key] = updateOptions[key];
@@ -1176,38 +1191,38 @@ var D3;
                 for (var cName in chart.groupObjs) {
                     chart.groupObjs[cName].notchBox.objs.g.remove();
                 }
-                chart.notchBoxes.prepareNotchBoxes();
-                chart.notchBoxes.update();
+                this.prepareNotchBoxes();
+                this.update();
             };
             ;
             notchBoxes.prototype.reset = function () {
-                chart.notchBoxes.change(defaultOptions);
+                this.change(notchBoxes.defaultOptions);
             };
             ;
             notchBoxes.prototype.show = function (opts) {
                 if (opts !== undefined) {
                     opts.show = true;
                     if (opts.reset) {
-                        chart.notchBoxes.reset();
+                        this.reset();
                     }
                 }
                 else {
                     opts = { show: true };
                 }
-                chart.notchBoxes.change(opts);
+                this.change(opts);
             };
             ;
             notchBoxes.prototype.hide = function (opts) {
                 if (opts !== undefined) {
                     opts.show = false;
                     if (opts.reset) {
-                        chart.notchBoxes.reset();
+                        this.reset();
                     }
                 }
                 else {
                     opts = { show: false };
                 }
-                chart.notchBoxes.change(opts);
+                this.change(opts);
             };
             ;
             /**
@@ -1215,11 +1230,13 @@ var D3;
              */
             notchBoxes.prototype.update = function () {
                 var cName, cGroup;
+                var chart = this.chart;
+                var nOpts = this.nOpts;
                 for (cName in chart.groupObjs) {
                     cGroup = chart.groupObjs[cName];
                     // Get the box size
-                    var boxBounds = getObjWidth(nOpts.boxWidth, cName);
-                    var medianBounds = getObjWidth(nOpts.medianWidth, cName);
+                    var boxBounds = chart.getObjWidth(nOpts.boxWidth, cName);
+                    var medianBounds = chart.getObjWidth(nOpts.medianWidth, cName);
                     var notchBounds = {
                         boxLeft: boxBounds.left,
                         boxRight: boxBounds.right,
@@ -1230,12 +1247,12 @@ var D3;
                     // Notch Box
                     if (cGroup.notchBox.objs.notch) {
                         cGroup.notchBox.objs.notch
-                            .attr("points", makeNotchBox(cGroup, notchBounds));
+                            .attr("points", this.makeNotchBox(cGroup, notchBounds));
                     }
                     if (cGroup.notchBox.objs.upperLine) {
                         var lineBounds = null;
                         if (nOpts.lineWidth) {
-                            lineBounds = getObjWidth(nOpts.lineWidth, cName);
+                            lineBounds = chart.getObjWidth(nOpts.lineWidth, cName);
                         }
                         else {
                             lineBounds = objBounds;
@@ -1263,11 +1280,13 @@ var D3;
              */
             notchBoxes.prototype.prepareNotchBoxes = function () {
                 var cName, cNotch;
+                var nOpts = this.nOpts;
+                var chart = this.chart;
                 if (nOpts && nOpts.colors) {
-                    chart.notchBoxes.colorFunct = getColorFunct(nOpts.colors);
+                    this.colorFunct = this.chart.getColorFunct(nOpts.colors);
                 }
                 else {
-                    chart.notchBoxes.colorFunct = chart.colorFunct;
+                    this.colorFunct = this.chart.colorFunct;
                 }
                 if (nOpts.show == false) {
                     return;
@@ -1279,8 +1298,8 @@ var D3;
                     if (nOpts.showNotchBox) {
                         cNotch.objs.notch = cNotch.objs.g.append("polygon")
                             .attr("class", "notch")
-                            .style("fill", chart.notchBoxes.colorFunct(cName))
-                            .style("stroke", chart.notchBoxes.colorFunct(cName));
+                            .style("fill", this.colorFunct(cName))
+                            .style("stroke", this.colorFunct(cName));
                         //A stroke is added to the notch with the group color, it is
                         // hidden by default and can be shown through css with stroke-width
                     }
@@ -1288,10 +1307,10 @@ var D3;
                     if (nOpts.showLines) {
                         cNotch.objs.upperLine = cNotch.objs.g.append("line")
                             .attr("class", "upper confidence line")
-                            .style("stroke", chart.notchBoxes.colorFunct(cName));
+                            .style("stroke", this.colorFunct(cName));
                         cNotch.objs.lowerLine = cNotch.objs.g.append("line")
                             .attr("class", "lower confidence line")
-                            .style("stroke", chart.notchBoxes.colorFunct(cName));
+                            .style("stroke", this.colorFunct(cName));
                     }
                 }
             };
@@ -1474,7 +1493,7 @@ var D3;
                 for (cName in vm.groupObjs) {
                     cViolinPlot = vm.groupObjs[cName].violin;
                     // Get the violin width
-                    var objBounds = D3.getObjWidth(vOpts.width, cName);
+                    var objBounds = vm.getObjWidth(vOpts.width, cName);
                     var width = (objBounds.right - objBounds.left) / 2;
                     var yVScale = d3.scale.linear()
                         .range([width, 0])
@@ -1517,7 +1536,7 @@ var D3;
                 var vm = this.chart;
                 var vOpts = this.vOpts;
                 if (vOpts.colors) {
-                    this.color = getColorFunct(vOpts.colors);
+                    this.color = vm.getColorFunct(vOpts.colors);
                 }
                 else {
                     this.color = vm.colorFunct;

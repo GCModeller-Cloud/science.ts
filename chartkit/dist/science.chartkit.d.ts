@@ -17,6 +17,7 @@ declare namespace D3 {
             xAxis: any;
             yAxis: any;
             tooltip: any;
+            axes: any;
         };
         xScale: any;
         yScale: any;
@@ -196,7 +197,7 @@ declare namespace D3 {
         /**
          * Defaults to the xName and yName
         */
-        axisLables: string[];
+        axisLabels: string[];
         /**
          * 1 = default ticks. 2 =  double, 0.5 = half
         */
