@@ -53,44 +53,48 @@
          * @param updateOptions
          */
         change(updateOptions) {
+            let dOpts =  this.dOpts;
+            
             if (updateOptions) {
                 for (var key in updateOptions) {
                     dOpts[key] = updateOptions[key]
                 }
             }
 
-            chart.dataPlots.objs.g.remove();
-            for (var cName in chart.groupObjs) {
-                chart.groupObjs[cName].dataPlots.objs.g.remove()
+            this.objs.g.remove();
+
+            for (var cName in this.chart.groupObjs) {
+                this.chart.groupObjs[cName].dataPlots.objs.g.remove()
             }
-            chart.dataPlots.preparePlots();
-            chart.dataPlots.update()
+
+            this.preparePlots();
+            this.update()
         };
 
         reset() {
-            chart.dataPlots.change(defaultOptions)
+            this.change(defaultOptions)
         };
         show(opts) {
             if (opts !== undefined) {
                 opts.show = true;
                 if (opts.reset) {
-                    chart.dataPlots.reset()
+                    this.reset()
                 }
             } else {
                 opts = { show: true };
             }
-            chart.dataPlots.change(opts)
+            this.change(opts)
         };
         hide(opts) {
             if (opts !== undefined) {
                 opts.show = false;
                 if (opts.reset) {
-                    chart.dataPlots.reset()
+                    this.reset()
                 }
             } else {
                 opts = { show: false };
             }
-            chart.dataPlots.change(opts)
+            this.change(opts)
         };
 
         /**
@@ -98,18 +102,20 @@
          */
         update() {
             var cName, cGroup, cPlot;
+            var chart =  this.chart;
+            var dOpts =  this.dOpts;
 
             // Metrics lines
-            if (chart.dataPlots.objs.g) {
+            if (this.objs.g) {
                 var halfBand = chart.xScale.rangeBand() / 2; // find the middle of each band
-                for (var cMetric in chart.dataPlots.objs.lines) {
-                    chart.dataPlots.objs.lines[cMetric].line
+                for (var cMetric in this.objs.lines) {
+                    this.objs.lines[cMetric].line
                         .x(function (d) {
                             return chart.xScale(d.x) + halfBand
                         });
-                    chart.dataPlots.objs.lines[cMetric].g
-                        .datum(chart.dataPlots.objs.lines[cMetric].values)
-                        .attr('d', chart.dataPlots.objs.lines[cMetric].line);
+                    this.objs.lines[cMetric].g
+                        .datum(this.objs.lines[cMetric].values)
+                        .attr('d', this.objs.lines[cMetric].line);
                 }
             }
 
@@ -120,7 +126,7 @@
 
                 if (cPlot.objs.points) {
                     if (dOpts.plotType == 'beeswarm') {
-                        var swarmBounds = getObjWidth(100, cName);
+                        var swarmBounds = chart. getObjWidth(100, cName);
                         var yPtScale = chart.yScale.copy()
                             .range([Math.floor(chart.yScale.range()[0] / dOpts.pointSize), 0])
                             .interpolate(d3.interpolateRound)
@@ -157,7 +163,7 @@
                             scatterWidth = typeof dOpts.plotType == 'number' ? dOpts.plotType : 20;
                         }
 
-                        plotBounds = getObjWidth(scatterWidth, cName);
+                        plotBounds = chart . getObjWidth(scatterWidth, cName);
                         width = plotBounds.right - plotBounds.left;
 
                         for (var pt = 0; pt < cGroup.values.length; pt++) {
@@ -170,7 +176,7 @@
 
 
                 if (cPlot.objs.bean) {
-                    var beanBounds = getObjWidth(dOpts.beanWidth, cName);
+                    var beanBounds = chart . getObjWidth(dOpts.beanWidth, cName);
                     for (var pt = 0; pt < cGroup.values.length; pt++) {
                         cPlot.objs.bean.lines[pt]
                             .attr("x1", beanBounds.left)
@@ -187,11 +193,12 @@
          */
         preparePlots() {
             var cName, cPlot;
+            var dOpts =  this.dOpts;
 
             if (dOpts && dOpts.colors) {
-                chart.dataPlots.colorFunct = getColorFunct(dOpts.colors);
+                this.colorFunct = this. chart. getColorFunct(dOpts.colors);
             } else {
-                chart.dataPlots.colorFunct = chart.colorFunct
+                this.colorFunct = this. chart.colorFunct
             }
 
             if (dOpts.show == false) {
@@ -199,49 +206,51 @@
             }
 
             // Metrics lines
-            chart.dataPlots.objs.g = chart.objs.g.append("g").attr("class", "metrics-lines");
+           this.objs.g = this.chart.objs.g.append("g").attr("class", "metrics-lines");
             if (dOpts.showLines && dOpts.showLines.length > 0) {
-                chart.dataPlots.objs.lines = {};
                 var cMetric;
+              
+                this.objs.lines = {};
+              
                 for (var line in dOpts.showLines) {
                     cMetric = dOpts.showLines[line];
-                    chart.dataPlots.objs.lines[cMetric] = {};
-                    chart.dataPlots.objs.lines[cMetric].values = [];
-                    for (var cGroup in chart.groupObjs) {
-                        chart.dataPlots.objs.lines[cMetric].values.push({
+                    this.objs.lines[cMetric] = {};
+                    this.objs.lines[cMetric].values = [];
+                    for (var cGroup in this. chart.groupObjs) {
+                        this.objs.lines[cMetric].values.push({
                             x: cGroup,
-                            y: chart.groupObjs[cGroup].metrics[cMetric]
+                            y: this.chart.groupObjs[cGroup].metrics[cMetric]
                         })
                     }
-                    chart.dataPlots.objs.lines[cMetric].line = d3.svg.line()
+                    this.objs.lines[cMetric].line = d3.svg.line()
                         .interpolate("cardinal")
                         .y(function (d) {
                             return chart.yScale(d.y)
                         });
-                    chart.dataPlots.objs.lines[cMetric].g = chart.dataPlots.objs.g.append("path")
+                    this.objs.lines[cMetric].g = this.objs.g.append("path")
                         .attr("class", "line " + cMetric)
                         .attr("data-metric", cMetric)
                         .style("fill", 'none')
-                        .style("stroke", chart.colorFunct(cMetric));
+                        .style("stroke", this. chart.colorFunct(cMetric));
                 }
 
             }
 
 
-            for (cName in chart.groupObjs) {
+            for (cName in this.chart.groupObjs) {
 
-                cPlot = chart.groupObjs[cName].dataPlots;
-                cPlot.objs.g = chart.groupObjs[cName].g.append("g").attr("class", "data-plot");
+                cPlot = this.chart.groupObjs[cName].dataPlots;
+                cPlot.objs.g = this. chart.groupObjs[cName].g.append("g").attr("class", "data-plot");
 
                 // Points Plot
                 if (dOpts.showPlot) {
                     cPlot.objs.points = { g: null, pts: [] };
                     cPlot.objs.points.g = cPlot.objs.g.append("g").attr("class", "points-plot");
-                    for (var pt = 0; pt < chart.groupObjs[cName].values.length; pt++) {
+                    for (var pt = 0; pt < this. chart.groupObjs[cName].values.length; pt++) {
                         cPlot.objs.points.pts.push(cPlot.objs.points.g.append("circle")
                             .attr("class", "point")
                             .attr('r', dOpts.pointSize / 2)// Options is diameter, r takes radius so divide by 2
-                            .style("fill", chart.dataPlots.colorFunct(cName)));
+                            .style("fill", this.colorFunct(cName)));
                     }
                 }
 
@@ -250,11 +259,11 @@
                 if (dOpts.showBeanLines) {
                     cPlot.objs.bean = { g: null, lines: [] };
                     cPlot.objs.bean.g = cPlot.objs.g.append("g").attr("class", "bean-plot");
-                    for (var pt = 0; pt < chart.groupObjs[cName].values.length; pt++) {
+                    for (var pt = 0; pt < this.chart.groupObjs[cName].values.length; pt++) {
                         cPlot.objs.bean.lines.push(cPlot.objs.bean.g.append("line")
                             .attr("class", "bean line")
                             .style("stroke-width", '1')
-                            .style("stroke", chart.dataPlots.colorFunct(cName)));
+                            .style("stroke", this.colorFunct(cName)));
                     }
                 }
             }
@@ -264,7 +273,5 @@
         protected hookEvt() {
             d3.select(window).on('resize.' + this.chart.selector + '.dataPlot', this.update);
         }
-
-
     }
 }
