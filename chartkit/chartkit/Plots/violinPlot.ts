@@ -203,7 +203,7 @@ namespace D3.canvas {
                 cViolinPlot = vm.groupObjs[cName].violin;
 
                 // Get the violin width
-                var objBounds = D3.getObjWidth(vOpts.width, cName);
+                var objBounds = vm.getObjWidth(vOpts.width, cName);
                 var width = (objBounds.right - objBounds.left) / 2;
 
                 var yVScale = d3.scale.linear()
@@ -253,7 +253,7 @@ namespace D3.canvas {
             let vOpts = this.vOpts;
 
             if (vOpts.colors) {
-                this.color = getColorFunct(vOpts.colors);
+                this.color = vm.getColorFunct(vOpts.colors);
             } else {
                 this.color = vm.colorFunct
             }

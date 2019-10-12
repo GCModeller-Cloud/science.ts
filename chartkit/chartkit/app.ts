@@ -25,7 +25,7 @@ function makeDistroChart(settings: D3.settings): D3.Chart {
         xName: null,
         yName: null,
         selector: null,
-        axisLables: null,
+        axisLabels: null,
         yTicks: 1,
         scale: 'linear',
         chartSize: { width: 800, height: 400 },

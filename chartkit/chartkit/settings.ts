@@ -25,7 +25,7 @@ namespace D3 {
         /**
          * Defaults to the xName and yName
         */
-        axisLables: string[]
+        axisLabels: string[]
         /**
          * 1 = default ticks. 2 =  double, 0.5 = half
         */

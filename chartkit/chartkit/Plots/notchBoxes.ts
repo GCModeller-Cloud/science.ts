@@ -65,6 +65,9 @@
          */
         private makeNotchBox(cNotch, notchBounds) {
             var scaledValues = [];
+            var nOpts =  this.nOpts;
+            let chart = this.chart;
+
             if (nOpts.notchStyle == 'box') {
                 scaledValues = [
                     [notchBounds.boxLeft, chart.yScale(cNotch.metrics.quartile1)],
@@ -108,6 +111,9 @@
          * @param updateOptions
          */
         change(updateOptions) {
+            let nOpts = this.nOpts;
+            let chart = this.chart; 
+
             if (updateOptions) {
                 for (var key in updateOptions) {
                     nOpts[key] = updateOptions[key]
@@ -117,34 +123,34 @@
             for (var cName in chart.groupObjs) {
                 chart.groupObjs[cName].notchBox.objs.g.remove()
             }
-            chart.notchBoxes.prepareNotchBoxes();
-            chart.notchBoxes.update();
+            this.prepareNotchBoxes();
+            this.update();
         };
 
         reset() {
-            chart.notchBoxes.change(defaultOptions)
+            this.change(notchBoxes.defaultOptions)
         };
         show(opts) {
             if (opts !== undefined) {
                 opts.show = true;
                 if (opts.reset) {
-                    chart.notchBoxes.reset()
+                    this.reset()
                 }
             } else {
                 opts = { show: true };
             }
-            chart.notchBoxes.change(opts)
+            this.change(opts)
         };
         hide(opts) {
             if (opts !== undefined) {
                 opts.show = false;
                 if (opts.reset) {
-                    chart.notchBoxes.reset()
+                    this.reset()
                 }
             } else {
                 opts = { show: false };
             }
-            chart.notchBoxes.change(opts)
+            this.change(opts)
         };
 
         /**
@@ -152,13 +158,15 @@
          */
         update() {
             var cName, cGroup;
+            var chart = this.chart;
+            var nOpts =  this.nOpts;
 
             for (cName in chart.groupObjs) {
                 cGroup = chart.groupObjs[cName];
 
                 // Get the box size
-                var boxBounds = getObjWidth(nOpts.boxWidth, cName);
-                var medianBounds = getObjWidth(nOpts.medianWidth, cName);
+                var boxBounds = chart . getObjWidth(nOpts.boxWidth, cName);
+                var medianBounds = chart . getObjWidth(nOpts.medianWidth, cName);
 
                 var notchBounds = {
                     boxLeft: boxBounds.left,
@@ -171,12 +179,12 @@
                 // Notch Box
                 if (cGroup.notchBox.objs.notch) {
                     cGroup.notchBox.objs.notch
-                        .attr("points", makeNotchBox(cGroup, notchBounds));
+                        .attr("points", this.makeNotchBox(cGroup, notchBounds));
                 }
                 if (cGroup.notchBox.objs.upperLine) {
                     var lineBounds = null;
                     if (nOpts.lineWidth) {
-                        lineBounds = getObjWidth(nOpts.lineWidth, cName)
+                        lineBounds = chart . getObjWidth(nOpts.lineWidth, cName)
                     } else {
                         lineBounds = objBounds
                     }
@@ -204,11 +212,13 @@
          */
         prepareNotchBoxes() {
             var cName, cNotch;
+            var nOpts =  this.nOpts;
+            var chart = this.chart ;
 
             if (nOpts && nOpts.colors) {
-                chart.notchBoxes.colorFunct = getColorFunct(nOpts.colors);
+                this.colorFunct = this.chart. getColorFunct(nOpts.colors);
             } else {
-                chart.notchBoxes.colorFunct = chart.colorFunct
+                this.colorFunct = this. chart.colorFunct
             }
 
             if (nOpts.show == false) {
@@ -224,8 +234,8 @@
                 if (nOpts.showNotchBox) {
                     cNotch.objs.notch = cNotch.objs.g.append("polygon")
                         .attr("class", "notch")
-                        .style("fill", chart.notchBoxes.colorFunct(cName))
-                        .style("stroke", chart.notchBoxes.colorFunct(cName));
+                        .style("fill", this.colorFunct(cName))
+                        .style("stroke", this.colorFunct(cName));
                     //A stroke is added to the notch with the group color, it is
                     // hidden by default and can be shown through css with stroke-width
                 }
@@ -234,11 +244,11 @@
                 if (nOpts.showLines) {
                     cNotch.objs.upperLine = cNotch.objs.g.append("line")
                         .attr("class", "upper confidence line")
-                        .style("stroke", chart.notchBoxes.colorFunct(cName));
+                        .style("stroke", this.colorFunct(cName));
 
                     cNotch.objs.lowerLine = cNotch.objs.g.append("line")
                         .attr("class", "lower confidence line")
-                        .style("stroke", chart.notchBoxes.colorFunct(cName));
+                        .style("stroke", this.colorFunct(cName));
                 }
             }
         };

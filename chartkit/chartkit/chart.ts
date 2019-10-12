@@ -15,7 +15,8 @@
             g: null,
             xAxis: null,
             yAxis: null,
-            tooltip: null
+            tooltip: null,
+            axes: null
         };
 
         public xScale = null;
