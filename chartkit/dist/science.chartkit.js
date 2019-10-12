@@ -102,7 +102,7 @@ var D3;
             var left = padding + gShift;
             var objSize = {
                 left: left,
-                right: objSize.left + width,
+                right: left + width,
                 middle: this.xScale.rangeBand() / 2 + gShift
             };
             return objSize;

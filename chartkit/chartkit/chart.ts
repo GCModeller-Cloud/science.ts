@@ -114,7 +114,7 @@
             var left: number = padding + gShift;
             var objSize = <canvas.objectBounds>{
                 left: left,
-                right: objSize.left + width,
+                right: left + width,
                 middle: this.xScale.rangeBand() / 2 + gShift
             };
 
