@@ -79,7 +79,6 @@
                 chart.groupObjs[cName].values.sort(d3.ascending);
                 chart.groupObjs[cName].metrics = {};
                 chart.groupObjs[cName].metrics = calcMetrics(chart.groupObjs[cName].values);
-
             }
 
             return true;
