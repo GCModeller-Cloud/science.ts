@@ -46,9 +46,10 @@
             // chart1.renderDataPlots();
             // chart1.renderNotchBoxes({ showNotchBox: false });
 
-            let violinPlots = chart1.renderViolinPlot({ showViolinPlot: false });
+            let violinPlots = chart1.renderViolinPlot({ showViolinPlot: true });
             
             violinPlots.show({ reset: true, clamp: 0 }); 
+            violinPlots.update();
             // chart1.boxPlots.show({ reset: true, showWhiskers: false, showOutliers: false, boxWidth: 10, lineWidth: 15, colors: ['#555'] }); 
             // chart1.notchBoxes.hide(); 
             // chart1.dataPlots.change({ showPlot: false, showBeanLines: false })

@@ -179,16 +179,14 @@
 
             // Create tooltip div
             chart.objs.tooltip = chart.objs.mainDiv.append('div').attr('class', 'tooltip');
-
-            let page: { pageX: number, pageY: number } = <any>d3.event;
-
+           
             for (var cName in chart.groupObjs) {
                 chart.groupObjs[cName].g = chart.objs.g.append("g").attr("class", "group");
                 chart.groupObjs[cName].g.on("mouseover", function () {
                     chart.objs.tooltip
                         .style("display", null)
-                        .style("left", (page.pageX) + "px")
-                        .style("top", (page.pageY - 28) + "px");
+                        .style("left", ((<page><any>d3.event).pageX) + "px")
+                        .style("top", ((<page><any>d3.event).pageY - 28) + "px");
                 }).on("mouseout", function () {
                     chart.objs.tooltip.style("display", "none");
                 }).on("mousemove", chart.tooltipHover(cName, chart.groupObjs[cName].metrics))
@@ -199,5 +197,10 @@
         }();
 
         return chart;
+    }
+
+    interface page {
+        pageX: number;
+        pageY: number;
     }
 }
