@@ -99,8 +99,9 @@ var D3;
             var width = this.xScale.rangeBand() * (objWidth / 100);
             var padding = (this.xScale.rangeBand() - width) / 2;
             var gShift = this.xScale(gName);
+            var left = padding + gShift;
             var objSize = {
-                left: padding + gShift,
+                left: left,
                 right: objSize.left + width,
                 middle: this.xScale.rangeBand() / 2 + gShift
             };
