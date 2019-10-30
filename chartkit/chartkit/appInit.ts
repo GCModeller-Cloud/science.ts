@@ -44,9 +44,6 @@
     }
 
     export function init(chart: Chart): Chart {
-
-        console.dir(chart);
-
         /**
          * Parse the data and calculates base values for the plots
         */
@@ -88,8 +85,13 @@
             chart.height = chart.divHeight - chart.margin.top - chart.margin.bottom;
 
             if (chart.settings.axisLabels) {
-                chart.xAxisLable = chart.settings.axisLabels.xAxis;
-                chart.yAxisLable = chart.settings.axisLabels.yAxis;
+                if (Array.isArray(chart.settings.axisLabels)) {
+                    chart.xAxisLable = chart.settings.axisLabels[0];
+                    chart.yAxisLable = chart.settings.axisLabels[1];
+                } else {
+                    chart.xAxisLable = chart.settings.axisLabels.xAxis;
+                    chart.yAxisLable = chart.settings.axisLabels.yAxis;
+                }
             } else {
                 chart.xAxisLable = chart.settings.xName;
                 chart.yAxisLable = chart.settings.yName;
@@ -102,16 +104,21 @@
                 chart.yScale = d3.scale.linear();
             }
 
-            if (chart.settings.constrainExtremes === true) {
-                var fences = [];
-                for (var cName in chart.groupObjs) {
-                    fences.push(chart.groupObjs[cName].metrics.lowerInnerFence);
-                    fences.push(chart.groupObjs[cName].metrics.upperInnerFence);
-                }
-                chart.range = d3.extent(fences);
+            if (isNullOrUndefined(chart.settings.range)) {
+                if (chart.settings.constrainExtremes === true) {
+                    let fences: number[] = [];
 
+                    for (var cName in chart.groupObjs) {
+                        fences.push(chart.groupObjs[cName].metrics.lowerInnerFence);
+                        fences.push(chart.groupObjs[cName].metrics.upperInnerFence);
+                    }
+
+                    chart.range = d3.extent(fences);
+                } else {
+                    chart.range = d3.extent(chart.data, d => d[chart.settings.yName]);
+                }
             } else {
-                chart.range = d3.extent(chart.data, function (d) { return d[chart.settings.yName]; });
+                chart.range = [...chart.settings.range];
             }
 
             chart.colorFunct = chart.getColorFunct(chart.settings.colors);
@@ -182,7 +189,7 @@
 
             // Create tooltip div
             chart.objs.tooltip = chart.objs.mainDiv.append('div').attr('class', 'tooltip');
-           
+
             for (var cName in chart.groupObjs) {
                 chart.groupObjs[cName].g = chart.objs.g.append("g").attr("class", "group");
                 chart.groupObjs[cName].g.on("mouseover", function () {

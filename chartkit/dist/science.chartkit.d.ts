@@ -202,7 +202,10 @@ declare namespace D3 {
         /**
          * Defaults to the xName and yName
         */
-        axisLabels: string[];
+        axisLabels: string[] | {
+            xAxis: string;
+            yAxis: string;
+        };
         /**
          * 1 = default ticks. 2 =  double, 0.5 = half
         */
@@ -224,7 +227,12 @@ declare namespace D3 {
          * Should the y scale include outliers?
         */
         constrainExtremes: boolean;
+        /**
+         * [min, max]
+        */
+        range: number[];
         color: any;
+        colors: any;
     }
 }
 declare namespace D3.canvas {

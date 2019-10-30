@@ -33,7 +33,10 @@
     export function kernelDensityEstimator(kernel: kernelFunction, x: number[]) {
         return function (sample: number[]) {
             return x.map(function (x) {
-                return { x: x, y: d3.mean(sample, function (v) { return kernel(x - v); }) };
+                return {
+                    x: x,
+                    y: d3.mean(sample, v => kernel(x - v))
+                };
             });
         };
     }
@@ -48,7 +51,7 @@
     // Given an array, find the value for a single point, even if it is not in the domain
     export function eKernelTest(kernel: kernelFunction, array: number[]) {
         return function (testX) {
-            return d3.mean(array, function (v) { return kernel(testX - v); })
+            return d3.mean(array, v => kernel(testX - v))
         }
     }
 }

@@ -1,10 +1,7 @@
 var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
+    var extendStatics = Object.setPrototypeOf ||
+        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -270,7 +267,6 @@ var D3;
             return metrics;
         }
         function init(chart) {
-            console.dir(chart);
             /**
              * Parse the data and calculates base values for the plots
             */
@@ -308,8 +304,14 @@ var D3;
                 chart.width = chart.divWidth - chart.margin.left - chart.margin.right;
                 chart.height = chart.divHeight - chart.margin.top - chart.margin.bottom;
                 if (chart.settings.axisLabels) {
-                    chart.xAxisLable = chart.settings.axisLabels.xAxis;
-                    chart.yAxisLable = chart.settings.axisLabels.yAxis;
+                    if (Array.isArray(chart.settings.axisLabels)) {
+                        chart.xAxisLable = chart.settings.axisLabels[0];
+                        chart.yAxisLable = chart.settings.axisLabels[1];
+                    }
+                    else {
+                        chart.xAxisLable = chart.settings.axisLabels.xAxis;
+                        chart.yAxisLable = chart.settings.axisLabels.yAxis;
+                    }
                 }
                 else {
                     chart.xAxisLable = chart.settings.xName;
@@ -322,16 +324,21 @@ var D3;
                 else {
                     chart.yScale = d3.scale.linear();
                 }
-                if (chart.settings.constrainExtremes === true) {
-                    var fences = [];
-                    for (var cName in chart.groupObjs) {
-                        fences.push(chart.groupObjs[cName].metrics.lowerInnerFence);
-                        fences.push(chart.groupObjs[cName].metrics.upperInnerFence);
+                if (isNullOrUndefined(chart.settings.range)) {
+                    if (chart.settings.constrainExtremes === true) {
+                        var fences = [];
+                        for (var cName in chart.groupObjs) {
+                            fences.push(chart.groupObjs[cName].metrics.lowerInnerFence);
+                            fences.push(chart.groupObjs[cName].metrics.upperInnerFence);
+                        }
+                        chart.range = d3.extent(fences);
                     }
-                    chart.range = d3.extent(fences);
+                    else {
+                        chart.range = d3.extent(chart.data, function (d) { return d[chart.settings.yName]; });
+                    }
                 }
                 else {
-                    chart.range = d3.extent(chart.data, function (d) { return d[chart.settings.yName]; });
+                    chart.range = chart.settings.range.slice();
                 }
                 chart.colorFunct = chart.getColorFunct(chart.settings.colors);
                 // Build Scale functions
@@ -485,7 +492,10 @@ var D3;
     function kernelDensityEstimator(kernel, x) {
         return function (sample) {
             return x.map(function (x) {
-                return { x: x, y: d3.mean(sample, function (v) { return kernel(x - v); }) };
+                return {
+                    x: x,
+                    y: d3.mean(sample, function (v) { return kernel(x - v); })
+                };
             });
         };
     }
