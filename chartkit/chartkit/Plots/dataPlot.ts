@@ -195,8 +195,9 @@
          * Create the svg elements for the data plots
          */
         preparePlots() {
-            var cName, cPlot;
-            var dOpts = this.dOpts;
+            let cName: string;
+            let cPlot;
+            let dOpts = this.dOpts;
 
             if (dOpts && dOpts.colors) {
                 this.colorFunct = this.chart.getColorFunct(dOpts.colors);
@@ -210,7 +211,8 @@
 
             // Metrics lines
             this.objs.g = this.chart.objs.g.append("g").attr("class", "metrics-lines");
-            if (dOpts.showLines && dOpts.showLines.length > 0) {
+
+            if ((!(typeof dOpts.showLines == "boolean")) && dOpts.showLines && Object.keys(dOpts.showLines).length > 0) {
                 var cMetric;
                 var chart = this.chart;
 
@@ -218,31 +220,30 @@
 
                 for (var line in dOpts.showLines) {
                     cMetric = dOpts.showLines[line];
+
                     this.objs.lines[cMetric] = {};
                     this.objs.lines[cMetric].values = [];
+
                     for (var cGroup in this.chart.groupObjs) {
                         this.objs.lines[cMetric].values.push({
                             x: cGroup,
                             y: this.chart.groupObjs[cGroup].metrics[cMetric]
                         })
                     }
+
                     this.objs.lines[cMetric].line = d3.svg.line()
                         .interpolate("cardinal")
-                        .y(function (d) {
-                            return chart.yScale(d.y)
-                        });
+                        .y(d => chart.yScale(d.y));
                     this.objs.lines[cMetric].g = this.objs.g.append("path")
                         .attr("class", "line " + cMetric)
                         .attr("data-metric", cMetric)
                         .style("fill", 'none')
                         .style("stroke", this.chart.colorFunct(cMetric));
                 }
-
             }
 
 
             for (cName in this.chart.groupObjs) {
-
                 cPlot = this.chart.groupObjs[cName].dataPlots;
                 cPlot.objs.g = this.chart.groupObjs[cName].g.append("g").attr("class", "data-plot");
 

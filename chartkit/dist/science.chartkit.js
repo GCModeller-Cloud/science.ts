@@ -1022,7 +1022,8 @@ var D3;
              * Create the svg elements for the data plots
              */
             dataPlot.prototype.preparePlots = function () {
-                var cName, cPlot;
+                var cName;
+                var cPlot;
                 var dOpts = this.dOpts;
                 if (dOpts && dOpts.colors) {
                     this.colorFunct = this.chart.getColorFunct(dOpts.colors);
@@ -1035,7 +1036,7 @@ var D3;
                 }
                 // Metrics lines
                 this.objs.g = this.chart.objs.g.append("g").attr("class", "metrics-lines");
-                if (dOpts.showLines && dOpts.showLines.length > 0) {
+                if ((!(typeof dOpts.showLines == "boolean")) && dOpts.showLines && Object.keys(dOpts.showLines).length > 0) {
                     var cMetric;
                     var chart = this.chart;
                     this.objs.lines = {};
@@ -1051,9 +1052,7 @@ var D3;
                         }
                         this.objs.lines[cMetric].line = d3.svg.line()
                             .interpolate("cardinal")
-                            .y(function (d) {
-                            return chart.yScale(d.y);
-                        });
+                            .y(function (d) { return chart.yScale(d.y); });
                         this.objs.lines[cMetric].g = this.objs.g.append("path")
                             .attr("class", "line " + cMetric)
                             .attr("data-metric", cMetric)
